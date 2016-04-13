@@ -3,12 +3,20 @@
 
 #include "stdafx.h"
 #include "Calculator.h"
+#include "Parser.h"
+#include <iomanip>
 
 int main()
 {
-	CCalculator calculator;
+	std::cout << std::fixed << std::setprecision(2);
+	CParser parser;
+	std::string str;
+	std::shared_ptr<CCalculator> calc = std::make_shared<CCalculator>();
+	while (getline(std::cin, str) && str != "")
+	{
+		parser.parse(str, calc);
 
-	calculator.add();
-    return 0;
+	}
+	return 0;
 }
 

@@ -13,3 +13,6 @@
 
 
 // TODO: Установите здесь ссылки на дополнительные заголовки, требующиеся для программы
+#include <string>
+#include <memory>
+#include <iostream>
