@@ -10,11 +10,11 @@ CFunc::CFunc()
 }
 
 CFunc::CFunc(const std::string & firstId,
-	const std::string & strOperator,
-	const std::string & secondId)
+			 OperatorType & operatorType,
+			 const std::string & secondId)
 {
 	m_firstId = firstId;
-	m_strOperator = strOperator;
+	m_operatorType = operatorType;
 	m_secondId = secondId;
 	m_complex = true;
 }
@@ -25,11 +25,11 @@ CFunc::CFunc(const std::string & firstId)
 	m_complex = false;
 }
 
-double CFunc::run(CCalculator & calculator)
+double CFunc::Run(CCalculator & calculator,const std::string & fnName, std::map<std::string, double> & cashFnList)
 {	
-	if (!isnan(m_result))
+	if (cashFnList.count(fnName) && !isnan(cashFnList[fnName]))
 	{
-		return m_result;
+		return cashFnList[fnName];
 	}
 
 	if (!m_complex)
@@ -37,22 +37,27 @@ double CFunc::run(CCalculator & calculator)
 		return calculator[m_firstId];
 	}
 
-	if (m_strOperator == "+")
+	if (m_operatorType == OperatorType::plus)
 	{
 		m_result = calculator[m_firstId] + calculator[m_secondId];
 	}
-	else if (m_strOperator == "-")
+	else if (m_operatorType == OperatorType::minus)
 	{
 		m_result = calculator[m_firstId] - calculator[m_secondId];
 	}
-	else if (m_strOperator == "*")
+	else if (m_operatorType == OperatorType::multiplication)
 	{
 		m_result = calculator[m_firstId] * calculator[m_secondId];
 	}
-	else if (m_strOperator == "/")
+	else if (m_operatorType == OperatorType::division)
 	{
 		m_result = calculator[m_firstId] / calculator[m_secondId];
 	}
+	else if (m_operatorType == OperatorType::degree)
+	{
+		m_result = pow(calculator[m_firstId], calculator[m_secondId]);
+	}
+	cashFnList[fnName] = m_result;
 	return m_result;
 }
 
@@ -65,28 +70,15 @@ CCalculator::~CCalculator()
 {
 }
 
-bool CCalculator::SetVar(const std::string & nameVar)
-{
-	if (m_listOfVar.count(nameVar) || !isID(nameVar))
-	{
-		return false;
-	}
-	m_listOfVar[nameVar] = NAN;
-	return true;
-}
-
 bool CCalculator::Let(const std::string & nameFirstVar, const std::string & nameSecondVar)
 {
-	if (!isID(nameFirstVar))
+	if (!CheckIdentificator(nameFirstVar))
 	{
 		return false;
 	}
 	else if (!m_listOfVar.count(nameFirstVar))
 	{
-		if (!SetVar(nameFirstVar))
-		{
-			return false;
-		}
+		m_listOfVar[nameFirstVar] = NAN;
 	}
 	//check is it number?
 	bool isNum = true;
@@ -114,33 +106,90 @@ bool CCalculator::Let(const std::string & nameFirstVar, const std::string & name
 
 bool CCalculator::SetFn(const std::string & fnName,
 	const std::string & firstId,
-	const std::string & strOperator,
+	OperatorType operatorType,
 	const std::string & secondId)
 {
-	std::string hash = fnName;// +firstId + strOperator + secondId;
-	if (m_listOfFn.count(hash) != 0 || !isID(fnName))
+	if (m_listOfFn.count(fnName) != 0 || !CheckIdentificator(fnName))
 	{
 		return false;
 	}
 	if (secondId == "")
 	{
-		m_listOfFn[hash] = CFunc(firstId);
+		m_listOfFn[fnName] = CFunc(firstId);
 	}
 	else
 	{
-		m_listOfFn[hash] = CFunc(firstId, strOperator, secondId);
+		m_listOfFn[fnName] = CFunc(firstId, operatorType, secondId);
 	}
 	
 	return true;
 }
 
+bool CCalculator::CheckIdentificator(const std::string & str)
+{
+	if (str.size() == 0 || !(isalpha(str[0]) || str[0] == '_'))
+	{
+		return false;
+	}
+
+	for (const auto & ch : str)
+	{
+		if (!isalpha(ch) && !isdigit(ch) && (ch != '_'))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+double CCalculator::GetVar(std::string varName)
+{
+	return m_listOfVar[varName];
+}
+
+double CCalculator::GetFn(std::string fnName)
+{
+	return m_listOfFn[fnName].Run(*this, fnName, cashFnList);
+}
+
+double CCalculator::operator[](std::string & id)
+{
+	if (m_listOfVar.count(id))
+	{
+		return m_listOfVar[id];
+	}
+
+	if (m_listOfFn.count(id))
+	{
+		return m_listOfFn[id].Run(*this, id, cashFnList);
+	}
+
+	bool isNum = true;
+	for (auto it : id)
+	{
+		if (!isdigit(it))
+		{
+			isNum = false;
+			break;
+		}
+	}
+
+	if (isNum)
+	{
+		return std::stod(id);
+	}
+	return NAN;
+}
+
 bool CCalculator::Print(const std::string & id)
 {
-	if (isID(id) && m_listOfFn.count(id))
+	if (CheckIdentificator(id) && m_listOfFn.count(id))
 	{
-		std::cout << m_listOfFn[id].run(*this) << std::endl;
+		std::cout << m_listOfFn[id].Run(*this, id, cashFnList) << std::endl;
+		cashFnList.clear();
 	}
-	else if (isID(id) && m_listOfVar.count(id))
+	else if (CheckIdentificator(id) && m_listOfVar.count(id))
 	{
 		std::cout << m_listOfVar[id] << std::endl;
 	}
@@ -162,65 +211,11 @@ bool CCalculator::PrintVars()
 
 bool CCalculator::PrintFns()
 {
+	/*
 	for (const auto & it : m_listOfFn)
 	{
-		std::cout << it.first << ":" << m_listOfFn[it.first].m_firstId << m_listOfFn[it.first].m_strOperator << m_listOfFn[it.first].m_secondId << std::endl;
+		std::cout << it.first << ":" << m_listOfFn[it.first].m_firstId << m_listOfFn[it.first].m_operatorType << m_listOfFn[it.first].m_secondId << std::endl;
 	}
+	*/
 	return true;
-}
-
-bool CCalculator::isID(const std::string & str)
-{
-	if (str.length() == 0 || !(isalpha(str[0]) || str[0] == '_'))
-	{
-		return false;
-	}
-	for (const auto & ch : str)
-	{
-		if (!isalpha(ch) && !isdigit(ch) && (ch != '_'))
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
-double CCalculator::operator[](std::string & id)
-{
-	if (m_listOfVar.count(id))
-	{
-		return m_listOfVar[id];
-	}
-
-	if (m_listOfFn.count(id))
-	{
-		return m_listOfFn[id].run(*this);
-	}
-
-	bool isNum = true;
-	for (auto it : id)
-	{
-		if (!isdigit(it))
-		{
-			isNum = false;
-			break;
-		}
-	}
-
-	if (isNum)
-	{
-		return std::stod(id);
-	}
-	return NAN;
-}
-
-double CCalculator::GetVar(std::string varName)
-{
-	return m_listOfVar[varName];
-}
-
-double CCalculator::GetFn(std::string fnName)
-{
-	return m_listOfFn[fnName].run(*this);
 }

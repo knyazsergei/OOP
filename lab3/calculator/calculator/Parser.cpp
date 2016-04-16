@@ -17,11 +17,7 @@ void CParser::parse(const std::string & code, std::shared_ptr<CCalculator> calc)
 	std::stringstream sCode(code);
 	while (getline(sCode, line))
 	{
-		if (processLine(line))
-		{
-
-		}
-		else
+		if (!processLine(line))
 		{
 			std::cout << "Error\n";
 		}
@@ -30,6 +26,7 @@ void CParser::parse(const std::string & code, std::shared_ptr<CCalculator> calc)
 
 bool CParser::processLine(std::string str)
 {
+	str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
 
 	if (str.substr(0, 2) == "fn")
 	{
@@ -47,16 +44,9 @@ bool CParser::processLine(std::string str)
 		m_calc->PrintVars();
 		return true;
 	}
-
-	str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
-
-	if (str.substr(0, 3) == "let")
+	else if (str.substr(0, 3) == "let")
 	{
 		return processLetLine(str.substr(3, std::string::npos));
-	}
-	else if (str.substr(0, 3) == "var")
-	{
-		return processSetLine(str.substr(3, std::string::npos));
 	}
 	else if (str.substr(0, 5) == "print")
 	{
@@ -64,22 +54,18 @@ bool CParser::processLine(std::string str)
 	}
 	else if (str.find('=') != std::string::npos)
 	{
-		if (str.find('+') != std::string::npos ||
+		if (((str.find('+') != std::string::npos ||
 			str.find('-') != std::string::npos ||
 			str.find('*') != std::string::npos ||
-			str.find('/') != std::string::npos)
+			str.find('/') != std::string::npos)||
+			str.find('^') != std::string::npos) &&
+			processFnLine(str))
 		{
-			if (processFnLine(str))
-			{
-				return true;
-			}
+			return true;	
 		}
-		else
+		else if (processLetLine(str))
 		{
-			if (processLetLine(str))
-			{
-				return true;
-			}
+			return true;	
 		}
 	}
 	return m_calc->Print(str);
@@ -111,7 +97,7 @@ bool CParser::processFnLine(const std::string & str)
 		}
 		else if (!first)
 		{
-			if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/')
+			if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/' || str[i] == '^')
 			{
 				operatorStr = str[i];
 				first = true;
@@ -132,7 +118,30 @@ bool CParser::processFnLine(const std::string & str)
 	{
 		return false;
 	}
-	m_calc->SetFn(idStr, firstStr, operatorStr, secondStr);
+
+	OperatorType operotrType = OperatorType::none;
+
+	if (operatorStr == "+")
+	{
+		operotrType = OperatorType::plus;
+	}
+	else if (operatorStr == "-")
+	{
+		operotrType = OperatorType::minus;
+	}
+	else if (operatorStr == "*")
+	{
+		operotrType = OperatorType::multiplication;
+	}
+	else if (operatorStr == "/")
+	{
+		operotrType = OperatorType::division;
+	}
+	else if (operatorStr == "^")
+	{
+		operotrType = OperatorType::degree;
+	}
+	m_calc->SetFn(idStr, firstStr, operotrType, secondStr);
 	return true;
 }
 
@@ -158,15 +167,10 @@ bool CParser::processLetLine(const std::string & str)
 		}
 		++i;
 	}
+
 	if (left)
 	{
 		return false;
 	}
 	return m_calc->Let(leftStr, rightStr);
-}
-
-bool CParser::processSetLine(const std::string & str)
-{
-	m_calc->SetVar(str);
-	return true;
 }
