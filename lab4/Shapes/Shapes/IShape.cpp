@@ -10,3 +10,8 @@ IShape::IShape()
 IShape::~IShape()
 {
 }
+
+void IShape::draw(sf::RenderTarget & target, sf::RenderStates states) const
+{
+
+}

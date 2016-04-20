@@ -16,8 +16,7 @@ int main()
 	
 	while (getline(std::cin, str) && str != "")
 	{
-		parser.parse(str, calc);
-
+		parser.ProcessCode(str, calc);
 	}
 	return EXIT_SUCCESS;
 }

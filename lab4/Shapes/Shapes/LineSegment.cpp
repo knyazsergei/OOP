@@ -2,10 +2,13 @@
 #include "LineSegment.h"
 
 
-CLineSegment::CLineSegment(std::shared_ptr<CDot> first, std::shared_ptr<CDot> second):
+CLineSegment::CLineSegment(std::shared_ptr<CDot> first, std::shared_ptr<CDot> second, const sf::Color & borderColor):
 	m_firstDot(first), 
 	m_secondDot(second)
 {
+	m_borderColor = borderColor;
+	m_shape[0] = sf::Vertex(first->m_position);
+	m_shape[1] = sf::Vertex(second->m_position);
 }
 
 
@@ -39,4 +42,10 @@ std::string CLineSegment::GetStringRepresentation()
 sf::Color CLineSegment::GetBorderColor()
 {
 	return m_borderColor;
+}
+
+void CLineSegment::draw(sf::RenderTarget & target, sf::RenderStates state) const
+{
+	target.draw(m_shape, 2, sf::Lines, state);
+	//target.draw(m_shape, state);
 }

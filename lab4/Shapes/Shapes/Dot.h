@@ -11,5 +11,9 @@ public:
 	virtual std::string GetStringRepresentation() override;
 	virtual sf::Color GetBorderColor() override;
 	sf::Vector2f m_position;
+private:
+	void draw(sf::RenderTarget & target, sf::RenderStates states) const override;
+
+	sf::RectangleShape m_shape = sf::RectangleShape({ 1,1 });
 };
 

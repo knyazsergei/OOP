@@ -6,6 +6,7 @@ CDot::CDot(float x, float y)
 {
 	m_position.x = x;
 	m_position.y = y;
+	m_shape.setPosition(x, y);
 }
 
 
@@ -25,10 +26,20 @@ float CDot::GetPerimeter()
 
 std::string CDot::GetStringRepresentation()
 {
-	return "point " + std::to_string(m_position.x) + " " + std::to_string(m_position.y);
+	std::ostringstream result;
+	result.setf(std::ios_base::fixed, std::ios_base::floatfield);
+	result << std::setprecision(2);
+
+	result << "point " << m_position.x << " " << m_position.y << std::endl;
+	return result.str();
 }
 
 sf::Color CDot::GetBorderColor()
 {
 	return m_borderColor;
+}
+
+void CDot::draw(sf::RenderTarget & target, sf::RenderStates states) const
+{
+	target.draw(m_shape, states);
 }
