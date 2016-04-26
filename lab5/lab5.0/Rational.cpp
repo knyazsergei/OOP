@@ -97,11 +97,9 @@ CRational const operator -(CRational const &rational1, CRational const &rational
 // TODO: 5. Реализовать оператор +=
 //////////////////////////////////////////////////////////////////////////
 
-CRational & CRational::operator+=(CRational const & right)
+CRational & CRational::operator+=(CRational const & rational2)
 {
-	m_numerator = m_numerator * right.m_denominator + right.m_numerator * m_denominator;
-	m_denominator *= right.m_denominator;
-	Normalize();
+	*this = *this + rational2;
 	return *this;
 }
 
@@ -110,12 +108,9 @@ CRational & CRational::operator+=(CRational const & right)
 // TODO: 6. Реализовать оператор -=
 //////////////////////////////////////////////////////////////////////////
 
-CRational & CRational::operator-=(CRational const & rational)
+CRational & CRational::operator-=(CRational const & rational2)
 {
-	m_numerator = m_numerator * rational.GetDenominator() - m_denominator * rational.GetNumerator();
-	m_denominator *= rational.GetDenominator();
-
-	Normalize();
+	*this = *this - rational2;
 	return *this;
 }
 
@@ -179,7 +174,8 @@ bool operator == (CRational const & rational1, CRational const & rational2)
 
 bool operator != (CRational const & rational1, CRational const & rational2)
 {
-	return !(rational1 == rational2);
+	return rational1.GetNumerator() != rational2.GetNumerator() ||
+		rational1.GetDenominator() != rational2.GetDenominator();
 }
 
 
