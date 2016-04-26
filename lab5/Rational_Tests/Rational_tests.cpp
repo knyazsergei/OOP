@@ -31,7 +31,7 @@ void VerifyRational(const CRational & r, int expectedNumerator, int expectedDeno
 }
 
 BOOST_AUTO_TEST_SUITE(Rational_number)
-BOOST_AUTO_TEST_CASE(is_0_by_default)
+BOOST_AUTO_TEST_CASE(is_zero_by_default)
 {
 	VerifyRational(CRational(), 0, 1);
 }
