@@ -12,7 +12,7 @@ void PrintHelp()
 	std::cout << "SetSpeed <value> - set speed value" << std::endl;
 }
 
-bool parseCommand(const std::string & commandStr, CCar & car)
+void parseCommand(const std::string & commandStr, CCar & car)
 {
 	std::istringstream command(commandStr);
 	std::string firstArg;
@@ -28,29 +28,29 @@ bool parseCommand(const std::string & commandStr, CCar & car)
 	}
 	else if (firstArg == "EngineOn")
 	{
-		return car.TurnOnEngine();
+		std::cout << (car.TurnOnEngine() ? "Ok" : "The problem with the engine running") << std::endl;
 	}
 	else if (firstArg == "EngineOff")
 	{
-		return car.TurnOffEngine();
+		std::cout << (car.TurnOffEngine() ? "Ok" : "The problem with the engine off") << std::endl;
 	}
 	else if (firstArg == "SetGear")
 	{
 		int secondArg;
 		command >> secondArg;
-		return car.SetGear(static_cast<Transmission>(secondArg));
+		std::cout << (car.SetGear(static_cast<Transmission>(secondArg)) ? "Ok" : "The problem with the gear shift") << std::endl;
 	}
 	else if (firstArg == "SetSpeed")
 	{
 		int secondArg;
 		command >> secondArg;
-		return car.SetSpeed(secondArg);
+		std::cout << (car.SetSpeed(secondArg)) ? "Ok" : "A problem with speed change") << std::endl;
+
 	}
 	else
 	{
 		PrintHelp();
 	}
-	return true;
 }
 
 int main()
@@ -59,10 +59,7 @@ int main()
 	std::string line;
 	while (getline(std::cin, line), line != "")
 	{
-		if (!parseCommand(line, car))
-		{
-			std::cout << "Problem with command\n";
-		}
+		parseCommand(line, car);
 	}
 	return 0;
 }
