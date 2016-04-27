@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "Definition.h"
 #include "Car.h"
 #include <sstream>
 
@@ -21,7 +20,8 @@ void parseCommand(const std::string & commandStr, CCar & car)
 	if (firstArg == "Info")
 	{
 		auto info = car.GetInfo();
-		std::cout << "Engine is " << (info.conditionEngine ? "working" : "offen") << std::endl
+		std::cout 
+			<< "Engine is " << (info.conditionEngine ? "working" : "offen") << std::endl
 			<< "Diraction: " << static_cast<int>(info.dir) << std::endl
 			<< "Gear: " << static_cast<int>(info.gear) << std::endl
 			<< "Speed: " << info.speed << std::endl;
@@ -61,6 +61,6 @@ int main()
 	{
 		parseCommand(line, car);
 	}
-	return 0;
+	return EXIT_SUCCESS;
 }
 

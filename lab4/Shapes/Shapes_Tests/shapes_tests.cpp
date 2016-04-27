@@ -3,8 +3,6 @@
 #include "../Shapes/Dot.h"
 #include <iostream>
 
-
-
 struct DotFixture
 {
 	CDot dot;
