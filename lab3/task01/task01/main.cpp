@@ -1,40 +1,56 @@
 #include "stdafx.h"
-#include "Driver.h"
+#include "Definition.h"
+#include "Car.h"
 #include <sstream>
 
-void parseCommand(const std::string & commandStr, CCar & car)
+void PrintHelp()
+{
+	std::cout << "Info - show car information" << std::endl;
+	std::cout << "EngineOn - switch on engine" << std::endl;
+	std::cout << "EngineOff - switch off engine" << std::endl;
+	std::cout << "SetGear <value> - set gear value" << std::endl;
+	std::cout << "SetSpeed <value> - set speed value" << std::endl;
+}
+
+bool parseCommand(const std::string & commandStr, CCar & car)
 {
 	std::istringstream command(commandStr);
 	std::string firstArg;
 	command >> firstArg;
+
 	if (firstArg == "Info")
 	{
-		PrintInfoAboutCar(car.GetInfo());
+		auto info = car.GetInfo();
+		std::cout << "Engine is " << (info.conditionEngine ? "working" : "offen") << std::endl
+			<< "Diraction: " << static_cast<int>(info.dir) << std::endl
+			<< "Gear: " << static_cast<int>(info.gear) << std::endl
+			<< "Speed: " << info.speed << std::endl;
 	}
 	else if (firstArg == "EngineOn")
 	{
-		PrintResultEngineOnCommand(car.TurnOnEngine());
+		return car.TurnOnEngine();
 	}
 	else if (firstArg == "EngineOff")
 	{
-		//PrintResultEngineOffCommand(car.TurnOffEngine());
+		return car.TurnOffEngine();
 	}
 	else if (firstArg == "SetGear")
 	{
-		std::string secondArg;
+		int secondArg;
 		command >> secondArg;
-		//PrintResultSetGearCommand(car.SetGear(static_cast<Transmission>(std::atoi(strValue.c_str()))));
+		return car.SetGear(static_cast<Transmission>(secondArg));
 	}
 	else if (firstArg == "SetSpeed")
 	{
-		std::string secondArg;
+		int secondArg;
 		command >> secondArg;
-		//PrintResultSetSpeedCommand(car.SetSpeed(std::atoi(strValue.c_str())));
+		return car.SetSpeed(secondArg);
 	}
 	else
 	{
 		PrintHelp();
 	}
+	return true;
 }
 
 int main()
@@ -43,7 +59,10 @@ int main()
 	std::string line;
 	while (getline(std::cin, line), line != "")
 	{
-		parseCommand(line, car);
+		if (!parseCommand(line, car))
+		{
+			std::cout << "Problem with command\n";
+		}
 	}
 	return 0;
 }

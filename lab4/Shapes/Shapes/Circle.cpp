@@ -23,17 +23,17 @@ CCircle::~CCircle()
 {
 }
 
-float CCircle::GetSquare()
+float CCircle::GetSquare()const
 {
-	return M_PI * m_radius;
+	return float(M_PI * m_radius);
 }
 
-float CCircle::GetPerimeter()
+float CCircle::GetPerimeter()const
 {
-	return 2 * M_PI * m_radius;
+	return float(M_PI * m_radius * 2);
 }
 
-std::string CCircle::GetStringRepresentation()
+std::string CCircle::GetStringRepresentation()const
 {
 	std::ostringstream result;
 	result.setf(std::ios_base::fixed, std::ios_base::floatfield);
@@ -43,6 +43,16 @@ std::string CCircle::GetStringRepresentation()
 		<< m_radius << ", S=" << GetSquare() << ", P=" << GetPerimeter() << std::endl;
 
 	return result.str();
+}
+
+sf::Color CCircle::GetColor() const
+{
+	return m_color;
+}
+
+sf::Color CCircle::GetBorderColor() const
+{
+	return m_borderColor;
 }
 
 void CCircle::draw(sf::RenderTarget & target, sf::RenderStates state) const

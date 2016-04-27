@@ -82,9 +82,9 @@ bool CCar::SetGear(const Transmission & gear)
 
 bool CCar::SetSpeed(const int & speed)
 {
-	if ((m_engineLaunched) &&
-		!(m_gear == Transmission::Neutral && speed > m_speed) &&
-		!CheckBound(speed, SPEED_RANGE.at(m_gear)))
+	if (m_engineLaunched &&
+		!(m_gear == Transmission::Neutral && speed > m_speed)&&
+		CheckBound(speed, SPEED_RANGE.at(m_gear)))
 	{
 		m_speed = speed;
 		SetDirection();

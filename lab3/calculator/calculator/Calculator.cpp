@@ -2,64 +2,9 @@
 #include "Calculator.h"
 #include <cmath>
 #include <iostream>
+#include <iterator>
+#include <utility>
 
-
-CFunc::CFunc()
-{
-
-}
-
-CFunc::CFunc(const std::string & firstId,
-			 OperatorType & operatorType,
-			 const std::string & secondId)
-{
-	m_firstId = firstId;
-	m_operatorType = operatorType;
-	m_secondId = secondId;
-	m_complex = true;
-}
-
-CFunc::CFunc(const std::string & firstId)
-{
-	m_firstId = firstId;
-	m_complex = false;
-}
-
-double CFunc::Run(CCalculator & calculator,const std::string & fnName, std::map<std::string, double> & cashFnList)
-{	
-	if (cashFnList.count(fnName) && !isnan(cashFnList[fnName]))
-	{
-		return cashFnList[fnName];
-	}
-
-	if (!m_complex)
-	{
-		return calculator[m_firstId];
-	}
-
-	if (m_operatorType == OperatorType::plus)
-	{
-		m_result = calculator[m_firstId] + calculator[m_secondId];
-	}
-	else if (m_operatorType == OperatorType::minus)
-	{
-		m_result = calculator[m_firstId] - calculator[m_secondId];
-	}
-	else if (m_operatorType == OperatorType::multiplication)
-	{
-		m_result = calculator[m_firstId] * calculator[m_secondId];
-	}
-	else if (m_operatorType == OperatorType::division)
-	{
-		m_result = calculator[m_firstId] / calculator[m_secondId];
-	}
-	else if (m_operatorType == OperatorType::degree)
-	{
-		m_result = pow(calculator[m_firstId], calculator[m_secondId]);
-	}
-	cashFnList[fnName] = m_result;
-	return m_result;
-}
 
 CCalculator::CCalculator()
 {
@@ -125,7 +70,7 @@ bool CCalculator::SetFn(const std::string & fnName,
 	return true;
 }
 
-bool CCalculator::CheckIdentificator(const std::string & str)
+bool CCalculator::CheckIdentificator(const std::string & str)const
 {
 	if (str.size() == 0 || !(isalpha(str[0]) || str[0] == '_'))
 	{
@@ -143,26 +88,26 @@ bool CCalculator::CheckIdentificator(const std::string & str)
 	return true;
 }
 
-double CCalculator::GetVar(std::string varName)
+double CCalculator::GetVar(std::string varName)const
 {
-	return m_listOfVar[varName];
+	return m_listOfVar.at(varName);
 }
 
-double CCalculator::GetFn(std::string fnName)
+double CCalculator::CalculateFn(std::string fnName)
 {
 	return m_listOfFn[fnName].Run(*this, fnName, cashFnList);
 }
 
-double CCalculator::operator[](std::string & id)
+double CCalculator::operator[](const std::string & id)
 {
 	if (m_listOfVar.count(id))
 	{
-		return m_listOfVar[id];
+		return GetVar(id);
 	}
 
 	if (m_listOfFn.count(id))
 	{
-		return m_listOfFn[id].Run(*this, id, cashFnList);
+		return CalculateFn(id);
 	}
 
 	bool isNum = true;
@@ -184,14 +129,9 @@ double CCalculator::operator[](std::string & id)
 
 bool CCalculator::Print(const std::string & id)
 {
-	if (CheckIdentificator(id) && m_listOfFn.count(id))
+	if (CheckIdentificator(id) && ( m_listOfFn.count(id) || m_listOfVar.count(id)))
 	{
-		std::cout << m_listOfFn[id].Run(*this, id, cashFnList) << std::endl;
-		cashFnList.clear();
-	}
-	else if (CheckIdentificator(id) && m_listOfVar.count(id))
-	{
-		std::cout << m_listOfVar[id] << std::endl;
+		std::cout << (*this)[id] << std::endl;
 	}
 	else
 	{
@@ -199,18 +139,35 @@ bool CCalculator::Print(const std::string & id)
 	}
 	return true;
 }
-
-bool CCalculator::PrintVars()
+namespace std{
+std::ostream &operator<<(std::ostream &stream, const std::pair<std::string, double>& pairElement)
 {
+	return stream << pairElement.first << " " << pairElement.second << std::endl;
+}
+}
+
+bool CCalculator::PrintVars()const
+{
+	//std::copy(m_listOfVar.begin(), m_listOfVar.end(), std::ostream_iterator< std::pair<std::string, double>>(std::cout, ""));
+	/*
 	for (const auto & it : m_listOfVar)
 	{
-		std::cout << it.first << ":" << m_listOfVar[it.first] << std::endl;
+		std::cout << it.first << ":" << m_listOfVar.at(it.first) << std::endl;
 	}
+	*/
 	return true;
+}
+
+namespace std {
+	std::ostream &operator<<(std::ostream &os, std::pair<std::string, CFunc > const &t) {
+		return os << t.first << " " << t.second.m_result;
+	}
 }
 
 bool CCalculator::PrintFns()
 {
+	//std::copy(m_listOfVar.begin(), m_listOfVar.end(), std::ostream_iterator< std::pair<std::string, CFunc > >(std::cout, ""));
+
 	/*
 	for (const auto & it : m_listOfFn)
 	{

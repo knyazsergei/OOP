@@ -5,10 +5,8 @@ class ISolidShape :
 	public IShape
 {
 public:
-	ISolidShape();
-	~ISolidShape();
-	sf::Color GetColor();
-	virtual sf::Color GetBorderColor() override;
+	virtual sf::Color GetColor()const = 0;
+	virtual sf::Color GetBorderColor()const = 0;
 protected:
 	sf::Color m_color;
 };

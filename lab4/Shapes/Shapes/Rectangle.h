@@ -8,9 +8,11 @@ class CRectangle :
 public:
 	CRectangle(std::unique_ptr<CDot> mainCorner, float width, float height, sf::Color borderColor, sf::Color color);
 	~CRectangle();
-	virtual float GetSquare() override;
-	virtual float GetPerimeter() override;
-	virtual std::string GetStringRepresentation() override;
+	virtual float GetSquare()const override;
+	virtual float GetPerimeter()const override;
+	virtual std::string GetStringRepresentation()const override;
+	sf::Color GetColor()const override;
+	sf::Color GetBorderColor()const override;
 private:
 	void draw(sf::RenderTarget & target, sf::RenderStates states) const override;
 	

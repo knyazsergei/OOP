@@ -36,7 +36,7 @@ CTriangle::~CTriangle()
 {
 }
 
-float CTriangle::GetSquare()
+float CTriangle::GetSquare()const
 {
 	sf::Vector2f firstVec = sf::Vector2f(m_firstDot->m_position.x, m_firstDot->m_position.y) - sf::Vector2f(m_secondDot->m_position.x, m_secondDot->m_position.y);
 	sf::Vector2f secondVec = sf::Vector2f(m_firstDot->m_position.x, m_firstDot->m_position.y) - sf::Vector2f(m_thirdDot->m_position.x, m_thirdDot->m_position.y);
@@ -44,12 +44,12 @@ float CTriangle::GetSquare()
 	return 	result;
 }
 
-float CTriangle::GetPerimeter()
+float CTriangle::GetPerimeter()const
 {
 	return m_firstLine->GetPerimeter() + m_secondDot->GetPerimeter() + m_thirdLine->GetPerimeter();
 }
 
-std::string CTriangle::GetStringRepresentation()
+std::string CTriangle::GetStringRepresentation()const
 {
 	std::ostringstream result;
 	result.setf(std::ios_base::fixed, std::ios_base::floatfield);
@@ -61,7 +61,12 @@ std::string CTriangle::GetStringRepresentation()
 	return result.str();
 }
 
-sf::Color CTriangle::GetBorderColor()
+sf::Color CTriangle::GetColor()const
+{
+	return m_color;
+}
+
+sf::Color CTriangle::GetBorderColor()const
 {
 	return m_borderColor;
 }

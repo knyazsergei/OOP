@@ -2,8 +2,10 @@
 #include <algorithm>
 #include <sstream>
 #include <string>
-#include "Calculator.h"
 #include "stdafx.h"
+#include "Calculator.h"
+#include <boost/container/small_vector.hpp>
+
 
 class CParser
 {
@@ -16,5 +18,6 @@ private:
 	bool ProcessFnLine(const std::string & str);
 	bool ProcessLetLine(const std::string & str);
 	std::shared_ptr<CCalculator> m_calc;
+	std::map<std::string, OperatorType> m_equalOperatorType;
 };
 

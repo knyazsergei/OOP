@@ -71,12 +71,6 @@
     <ClCompile Include="Dot.cpp">
       <Filter>shapes\basicShapes</Filter>
     </ClCompile>
-    <ClCompile Include="IShape.cpp">
-      <Filter>shapes\infterfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="ISolidShape.cpp">
-      <Filter>shapes\infterfaces</Filter>
-    </ClCompile>
     <ClCompile Include="Rectangle.cpp">
       <Filter>shapes\basicShapes\solidShapes</Filter>
     </ClCompile>

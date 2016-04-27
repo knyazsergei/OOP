@@ -4,8 +4,7 @@
 
 CDot::CDot(float x, float y)
 {
-	m_position.x = x;
-	m_position.y = y;
+	m_position = { x, y };
 	m_shape.setPosition(x, y);
 }
 
@@ -14,17 +13,17 @@ CDot::~CDot()
 {
 }
 
-float CDot::GetSquare()
+float CDot::GetSquare()const
 {
 	return 0;
 }
 
-float CDot::GetPerimeter()
+float CDot::GetPerimeter()const
 {
 	return 0;
 }
 
-std::string CDot::GetStringRepresentation()
+std::string CDot::GetStringRepresentation()const
 {
 	std::ostringstream result;
 	result.setf(std::ios_base::fixed, std::ios_base::floatfield);
@@ -34,7 +33,7 @@ std::string CDot::GetStringRepresentation()
 	return result.str();
 }
 
-sf::Color CDot::GetBorderColor()
+sf::Color CDot::GetBorderColor()const
 {
 	return m_borderColor;
 }

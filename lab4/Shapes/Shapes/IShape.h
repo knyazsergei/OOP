@@ -7,16 +7,15 @@ class IShape:
 	public sf::Drawable
 {
 public:
-	IShape();
-	~IShape();
-	virtual float GetSquare() = 0;
+	~IShape() {};
+	virtual float GetSquare()const = 0;
 
-	virtual float GetPerimeter() = 0;
-	virtual std::string GetStringRepresentation() = 0;
-	virtual sf::Color GetBorderColor() = 0;
+	virtual float GetPerimeter()const = 0;
+	virtual std::string GetStringRepresentation()const = 0;
+	virtual sf::Color GetBorderColor()const = 0;
 protected:
 	sf::Color m_borderColor;
 private:
-	virtual void draw(sf::RenderTarget & target, sf::RenderStates states) const;// = 0;
+	virtual void draw(sf::RenderTarget & target, sf::RenderStates states) const = 0;
 };
 

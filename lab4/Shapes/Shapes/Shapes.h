@@ -1,4 +1,5 @@
 #pragma once
+#include <sfml/Graphics.hpp>
 //Interface
 #include "IShape.h"
 #include "ISolidShape.h"
@@ -48,6 +49,9 @@ sf::Color colorConverter(std::string hexCode)
 		}
 	}
 
-	sf::Color color(r, g, b);
+	sf::Color color;
+	color.r = sf::Uint8(r);
+	color.g = sf::Uint8(g);
+	color.b = sf::Uint8(b);
 	return color;
 }

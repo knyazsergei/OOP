@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(Check_creat_functions)
 	calc.Let("a", "1");
 	calc.Let("b", "2");
 	BOOST_CHECK_EQUAL(calc.SetFn("fn4", "a", "+", "b"), true);
-	BOOST_CHECK_EQUAL(calc.GetFn("fn4"), 3);
+	BOOST_CHECK_EQUAL(calc.CalculateFn("fn4"), 3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

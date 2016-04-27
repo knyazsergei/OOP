@@ -16,30 +16,29 @@ CLineSegment::~CLineSegment()
 {
 }
 
-float CLineSegment::GetSquare()
+float CLineSegment::GetSquare()const
 {
 	return 0;
 }
 
-float CLineSegment::GetPerimeter()
+float CLineSegment::GetPerimeter()const
 {
-	return sqrt(pow((m_firstDot->m_position.x - m_secondDot->m_position.x), 2) 
-				+ pow((m_firstDot->m_position.y - m_secondDot->m_position.y), 2));
+	return sqrt(pow((m_firstDot->m_position.x - m_secondDot->m_position.x), 2)
+		+ pow((m_firstDot->m_position.y - m_secondDot->m_position.y), 2));
 }
 
-std::string CLineSegment::GetStringRepresentation()
+std::string CLineSegment::GetStringRepresentation()const
 {
-	return "line "
-		+ std::to_string(m_firstDot->m_position.x)
-		+ " "
-		+ std::to_string(m_firstDot->m_position.y)
-		+ "  "
-		+ std::to_string(m_secondDot->m_position.x)
-		+ " "
-		+ std::to_string(m_secondDot->m_position.y);
+	std::ostringstream result;
+	result.setf(std::ios_base::fixed, std::ios_base::floatfield);
+	result << std::setprecision(2);
+
+	result << "line " << m_firstDot->m_position.x << " " << m_firstDot->m_position.y << " "
+		<< m_secondDot->m_position.x << " " << m_secondDot->m_position.y << std::endl;
+	return result.str();
 }
 
-sf::Color CLineSegment::GetBorderColor()
+sf::Color CLineSegment::GetBorderColor()const
 {
 	return m_borderColor;
 }

@@ -23,17 +23,17 @@ CRectangle::~CRectangle()
 {
 }
 
-float CRectangle::GetSquare()
+float CRectangle::GetSquare()const
 {
 	return m_height * m_width;
 }
 
-float CRectangle::GetPerimeter()
+float CRectangle::GetPerimeter()const
 {
 	return 2 * (m_width + m_height);
 }
 
-std::string CRectangle::GetStringRepresentation()
+std::string CRectangle::GetStringRepresentation()const
 {
 	std::ostringstream result;
 	result.setf(std::ios_base::fixed, std::ios_base::floatfield);
@@ -44,6 +44,16 @@ std::string CRectangle::GetStringRepresentation()
 		<< GetSquare() << ", P=" << GetPerimeter() << std::endl;
 	
 	return result.str();
+}
+
+sf::Color CRectangle::GetColor() const
+{
+	return m_color;
+}
+
+sf::Color CRectangle::GetBorderColor() const
+{
+	return m_borderColor;
 }
 
 void CRectangle::draw(sf::RenderTarget & target, sf::RenderStates state) const

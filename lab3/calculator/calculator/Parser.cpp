@@ -3,6 +3,14 @@
 
 CParser::CParser()
 {
+	m_equalOperatorType = {
+		{ "=", OperatorType::equally },
+		{ "+", OperatorType::plus },
+		{ "-", OperatorType::minus },
+		{ "*", OperatorType::multiplication },
+		{ "/",OperatorType::division },
+		{ "^", OperatorType::degree }
+	};
 }
 
 
@@ -26,47 +34,43 @@ void CParser::ProcessCode(const std::string & code, std::shared_ptr<CCalculator>
 
 bool CParser::ProcessLine(std::string str)
 {
-	str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
-
-	if (str.substr(0, 2) == "fn")
+	
+	std::stringstream streamArgs(str);
+	std::string firstArg;
+	std::string secondArg;
+	streamArgs >> firstArg;
+	boost::container::small_vector<std::string, 10> args;
+	std::string word;
+	while (streamArgs >> word)
 	{
-		str = str.substr(2, std::string::npos);
-		return ProcessFnLine(str);
+		args.push_back(word);
 	}
-	else if (str.substr(0, 8) == "printfns")
+
+	if (firstArg == "fn")
+	{
+		return ProcessFnLine(secondArg);
+	}
+	else if (firstArg == "printfns")
 	{
 		m_calc->PrintFns();
 		return true;
 	}
-	else if (str.substr(0, 9) == "printvars")
+	else if (firstArg == "printvars")
 	{
 		m_calc->PrintVars();
 		return true;
 	}
-	else if (str.substr(0, 3) == "let")
+	else if (firstArg  == "let")
 	{
-		return ProcessLetLine(str.substr(3, std::string::npos));
+		return ProcessLetLine(str);
 	}
-	else if (str.substr(0, 5) == "print")
+	else if (firstArg == "print")
 	{
-		return m_calc->Print(str.substr(5, std::string::npos));
+		return m_calc->Print(secondArg);
 	}
-	else if (str.find('=') != std::string::npos)
+	else if (str.find('=') != std::string::npos && ProcessFnLine(str))
 	{
-		if ((
-			str.find('+') != std::string::npos ||
-			str.find('-') != std::string::npos ||
-			str.find('*') != std::string::npos ||
-			str.find('/') != std::string::npos||
-			str.find('^') != std::string::npos) &&
-			ProcessFnLine(str))
-		{
 			return true;	
-		}
-		else if (ProcessLetLine(str))
-		{
-			return true;	
-		}
 	}
 	return m_calc->Print(str);
 }
@@ -81,67 +85,60 @@ bool CParser::ProcessFnLine(const std::string & str)
 	std::string firstStr;
 	std::string secondStr;
 	std::string operatorStr;
-	while (i != str.size())
+	
+	for(auto ch:str)
 	{
 
 		if (!id)
 		{
-			if (str[i] == '=')
+			if (ch == '=')
 			{
 				id = true;
 			}
 			else
 			{
-				idStr += str[i];
+				idStr += ch;
 			}
 		}
 		else if (!first)
 		{
-			if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/' || str[i] == '^')
+			if(m_equalOperatorType.count(std::to_string(str[i])))
 			{
-				operatorStr = str[i];
+				operatorStr = ch;
 				first = true;
 			}
 			else
 			{
-				firstStr += str[i];
+				firstStr += ch;
 			}
 
 		}
 		else
 		{
-			secondStr += str[i];
+			secondStr += ch;
 		}
-		++i;
 	}
 	if (firstStr == "")
 	{
 		return false;
 	}
 
-	OperatorType operotrType = OperatorType::none;
+	bool isNum = true;
+	for (auto ch : firstStr)
+	{
+		if (!isdigit(ch))
+		{
+			isNum = false;
+			break;
+		}
+	}
 
-	if (operatorStr == "+")
+	if (isNum & secondStr == "")
 	{
-		operotrType = OperatorType::plus;
+		return ProcessLetLine(str);
 	}
-	else if (operatorStr == "-")
-	{
-		operotrType = OperatorType::minus;
-	}
-	else if (operatorStr == "*")
-	{
-		operotrType = OperatorType::multiplication;
-	}
-	else if (operatorStr == "/")
-	{
-		operotrType = OperatorType::division;
-	}
-	else if (operatorStr == "^")
-	{
-		operotrType = OperatorType::degree;
-	}
-	m_calc->SetFn(idStr, firstStr, operotrType, secondStr);
+
+	m_calc->SetFn(idStr, firstStr, m_equalOperatorType[operatorStr], secondStr);
 	return true;
 }
 
@@ -151,23 +148,23 @@ bool CParser::ProcessLetLine(const std::string & str)
 	bool left = true;
 	std::string leftStr;
 	std::string rightStr;
-	while (i < str.size())
+	
+	for(auto ch:str)
 	{
-		if (str[i] == '=')
+		if (ch == '=')
 		{
 			left = false;
 		}
 		else if(left)
 		{
-			leftStr += str[i];
+			leftStr += ch;
 		}
 		else
 		{
-			rightStr += str[i];
+			rightStr += ch;
 		}
-		++i;
 	}
-
+	std::cout << "hi" << left << std::endl;
 	if (left)
 	{
 		return false;

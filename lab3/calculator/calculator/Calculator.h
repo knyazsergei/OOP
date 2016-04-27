@@ -4,37 +4,7 @@
 #include <map>
 #include <string>
 #include <math.h> 
-
-class CCalculator;
-
-enum class OperatorType
-{
-	plus,
-	minus,
-	multiplication,
-	division,
-	degree,
-	none
-};
-
-class CFunc
-{
-public:
-	bool m_complex = false;
-	double m_result = NAN;
-
-	CFunc();
-	CFunc(const std::string & firstId,
-		  OperatorType & operatorType,
-		  const std::string & secondId);
-	CFunc(const std::string & firstId);
-	
-	double Run(CCalculator & calculator,const std::string & fnName, std::map<std::string, double> & cashFnList);
-
-	std::string m_firstId;
-	OperatorType m_operatorType;
-	std::string m_secondId;
-};
+#include "Func.h"
 
 class CCalculator
 {
@@ -46,18 +16,18 @@ public:
 	bool SetFn(const std::string & fnName,
 		const std::string & firstId,
 		OperatorType operatorType,
-		const std::string & secondId);
+		const std::string & secondId="");
 
 	bool Print(const std::string & id);
-	bool PrintVars();
+	bool PrintVars()const;
 	bool PrintFns();
 
-	double operator[](std::string & id);
+	double operator[](const std::string & id);
 
-	double GetVar(std::string varName);
-	double GetFn(std::string fnName);
+	double GetVar(std::string varName)const;
+	double CalculateFn(std::string fnName);
 private:
-	bool CheckIdentificator(const std::string & str);
+	bool CheckIdentificator(const std::string & str)const;
 	
 	std::map<std::string, double> m_listOfVar;
 	std::map<std::string, CFunc> m_listOfFn;
