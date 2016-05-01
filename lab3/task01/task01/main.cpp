@@ -21,8 +21,8 @@ void parseCommand(const std::string & commandStr, CCar & car)
 	{
 		auto info = car.GetInfo();
 		std::cout 
-			<< "Engine is " << (info.conditionEngine ? "working" : "offen") << std::endl
-			<< "Diraction: " << static_cast<int>(info.dir) << std::endl
+			<< "Engine is " << (info.engineCondition ? "working" : "offen") << std::endl
+			<< "Direction: " << static_cast<int>(info.dir) << std::endl
 			<< "Gear: " << static_cast<int>(info.gear) << std::endl
 			<< "Speed: " << info.speed << std::endl;
 	}

@@ -161,13 +161,16 @@
   <ItemGroup>
     <ClInclude Include="..\Shapes\Dot.h" />
     <ClInclude Include="..\Shapes\IShape.h" />
+    <ClInclude Include="..\Shapes\LineSegment.h" />
+    <ClInclude Include="..\Shapes\Triangle.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Shapes\Dot.cpp" />
+    <ClCompile Include="..\Shapes\LineSegment.cpp" />
+    <ClCompile Include="..\Shapes\Triangle.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="shapes_tests.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

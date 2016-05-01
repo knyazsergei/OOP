@@ -15,8 +15,14 @@ CCalculator::~CCalculator()
 {
 }
 
+bool CCalculator::isNumber(const std::string& s)
+{
+	return(strspn(s.c_str(), "-.0123456789") == s.size());
+}
+
 bool CCalculator::Let(const std::string & nameFirstVar, const std::string & nameSecondVar)
 {
+
 	if (!CheckIdentificator(nameFirstVar))
 	{
 		return false;
@@ -25,18 +31,8 @@ bool CCalculator::Let(const std::string & nameFirstVar, const std::string & name
 	{
 		m_listOfVar[nameFirstVar] = NAN;
 	}
-	//check is it number?
-	bool isNum = true;
-	for (auto it : nameSecondVar)
-	{
-		if (!isdigit(it))
-		{
-			isNum = false;
-			break;
-		}
-	}
-
-	if (isNum)
+	
+	if (isNumber(nameSecondVar))
 	{
 		m_listOfVar[nameFirstVar] = std::stod(nameSecondVar);
 		return true;
@@ -45,6 +41,7 @@ bool CCalculator::Let(const std::string & nameFirstVar, const std::string & name
 	{
 		return false;
 	}
+
 	m_listOfVar[nameFirstVar] = m_listOfVar[nameSecondVar];
 	return true;
 }
@@ -54,10 +51,11 @@ bool CCalculator::SetFn(const std::string & fnName,
 	OperatorType operatorType,
 	const std::string & secondId)
 {
-	if (m_listOfFn.count(fnName) != 0 || !CheckIdentificator(fnName))
+	if (!CheckIdentificator(fnName))
 	{
 		return false;
 	}
+
 	if (secondId == "")
 	{
 		m_listOfFn[fnName] = CFunc(firstId);
@@ -110,17 +108,7 @@ double CCalculator::operator[](const std::string & id)
 		return CalculateFn(id);
 	}
 
-	bool isNum = true;
-	for (auto it : id)
-	{
-		if (!isdigit(it))
-		{
-			isNum = false;
-			break;
-		}
-	}
-
-	if (isNum)
+	if(isNumber(id))
 	{
 		return std::stod(id);
 	}

@@ -26,9 +26,9 @@ struct Border
 	int upperBound;	
 };
 
-struct InfoAboutCar
+struct CarInfo
 {
-	bool conditionEngine;
+	bool engineCondition;
 	Direction dir;			
 	int speed;			
 	Transmission gear;	

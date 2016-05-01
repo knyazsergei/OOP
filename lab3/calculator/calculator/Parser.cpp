@@ -32,142 +32,99 @@ void CParser::ProcessCode(const std::string & code, std::shared_ptr<CCalculator>
 	}
 }
 
+boost::container::small_vector<std::string, 10> CParser::getArgs(const std::string & srm)
+{
+	boost::container::small_vector<std::string, 10> result;
+	std::string value;
+	std::string sch;
+	for (auto ch : srm)
+	{
+		sch = std::string(1, ch);
+		if (m_equalOperatorType.count(sch) || isspace(ch))
+		{
+			result.push_back(value);
+			if (!isspace(ch)) {
+				result.push_back(sch);
+			}
+			value = "";
+		}
+		else if (!isspace(ch))
+		{
+			value += ch;
+		}
+	}
+	if (value.length() > 0)
+	{
+		result.push_back(value);
+	}
+	return result;
+}
+
 bool CParser::ProcessLine(std::string str)
 {
-	
-	std::stringstream streamArgs(str);
-	std::string firstArg;
-	std::string secondArg;
-	streamArgs >> firstArg;
-	boost::container::small_vector<std::string, 10> args;
-	std::string word;
-	while (streamArgs >> word)
+	boost::container::small_vector<std::string, 10> args = getArgs(str);
+	if (args.size() == 0)
 	{
-		args.push_back(word);
+		return false;
 	}
+	/*{
+		std::stringstream srm(str);
+		std::string word;
 
-	if (firstArg == "fn")
+		while (srm >> word)
+		{
+			args.push_back(word);
+			std::cout << word << std::endl;
+		}
+	}*/
+	/*std::cout << args.size() << ": ";
+	std::copy(args.begin(), args.end(), std::ostream_iterator<std::string>(std::cout, " "));
+	std::cout << std::endl;
+*/
+	if (args[0] == "fn")
 	{
-		return ProcessFnLine(secondArg);
+		return ProcessFnLine(args, 1);
 	}
-	else if (firstArg == "printfns")
+	else if (args[0] == "printfns")
 	{
 		m_calc->PrintFns();
 		return true;
 	}
-	else if (firstArg == "printvars")
+	else if (args[0] == "printvars")
 	{
 		m_calc->PrintVars();
 		return true;
 	}
-	else if (firstArg  == "let")
+	else if (args[0] == "let")
 	{
-		return ProcessLetLine(str);
+		return ProcessLetLine(args, 1);
 	}
-	else if (firstArg == "print")
+	else if (args[0] == "print")
 	{
-		return m_calc->Print(secondArg);
+		return m_calc->Print(args[1]);
 	}
-	else if (str.find('=') != std::string::npos && ProcessFnLine(str))
+	else if (str.find('=') != std::string::npos)
 	{
-			return true;	
+		if (args.size() == 3)
+		{
+			return ProcessLetLine(args, 0);
+		}
+		else if (args.size() > 4)
+		{
+			return ProcessFnLine(args, 0);
+
+		}
 	}
 	return m_calc->Print(str);
 }
 
-bool CParser::ProcessFnLine(const std::string & str)
+bool CParser::ProcessFnLine(const boost::container::small_vector<std::string, 10> & args, size_t shift)
 {
-	size_t i = 0;
-
-	bool id = false;
-	bool first = false;
-	std::string idStr;
-	std::string firstStr;
-	std::string secondStr;
-	std::string operatorStr;
-	
-	for(auto ch:str)
-	{
-
-		if (!id)
-		{
-			if (ch == '=')
-			{
-				id = true;
-			}
-			else
-			{
-				idStr += ch;
-			}
-		}
-		else if (!first)
-		{
-			if(m_equalOperatorType.count(std::to_string(str[i])))
-			{
-				operatorStr = ch;
-				first = true;
-			}
-			else
-			{
-				firstStr += ch;
-			}
-
-		}
-		else
-		{
-			secondStr += ch;
-		}
-	}
-	if (firstStr == "")
-	{
-		return false;
-	}
-
-	bool isNum = true;
-	for (auto ch : firstStr)
-	{
-		if (!isdigit(ch))
-		{
-			isNum = false;
-			break;
-		}
-	}
-
-	if (isNum & secondStr == "")
-	{
-		return ProcessLetLine(str);
-	}
-
-	m_calc->SetFn(idStr, firstStr, m_equalOperatorType[operatorStr], secondStr);
-	return true;
+	return m_calc->SetFn(args[shift + 0], args[shift + 2], m_equalOperatorType[args[shift + 3]], args[shift + 4]);
 }
 
-bool CParser::ProcessLetLine(const std::string & str)
+bool CParser::ProcessLetLine(const boost::container::small_vector<std::string, 10> & args, size_t shift)
 {
-	size_t i = 0;
-	bool left = true;
-	std::string leftStr;
-	std::string rightStr;
-	
-	for(auto ch:str)
-	{
-		if (ch == '=')
-		{
-			left = false;
-		}
-		else if(left)
-		{
-			leftStr += ch;
-		}
-		else
-		{
-			rightStr += ch;
-		}
-	}
-	std::cout << "hi" << left << std::endl;
-	if (left)
-	{
-		return false;
-	}
-	return m_calc->Let(leftStr, rightStr);
+	std::cout << args[shift] << " " << args[shift + 2] << std::endl;
+	return m_calc->Let(args[shift], args[shift + 2]);
 }

@@ -5,6 +5,8 @@
 #include <string>
 #include <math.h> 
 #include "Func.h"
+#include <ctype.h>
+#include "Tree.h"
 
 class CCalculator
 {
@@ -27,11 +29,13 @@ public:
 	double GetVar(std::string varName)const;
 	double CalculateFn(std::string fnName);
 private:
+	bool isNumber(const std::string& s);
 	bool CheckIdentificator(const std::string & str)const;
-	
 	std::map<std::string, double> m_listOfVar;
 	std::map<std::string, CFunc> m_listOfFn;
 	//cash
 	std::map<std::string, double> cashFnList;
+	//call
+	CTree m_tree;
 };
 

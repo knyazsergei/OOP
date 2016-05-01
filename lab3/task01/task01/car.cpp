@@ -10,11 +10,10 @@ CCar::CCar()
 {
 }
 
-
-InfoAboutCar CCar::GetInfo() const
+CarInfo CCar::GetInfo() const
 {
-	InfoAboutCar indicators;
-	indicators.conditionEngine = m_engineLaunched;
+	CarInfo indicators;
+	indicators.engineCondition = m_engineLaunched;
 	indicators.dir = m_direction;
 	indicators.gear = m_gear;
 	indicators.speed = m_speed;
@@ -37,13 +36,13 @@ void CCar::SetDirection()
 	}
 }
 
-bool CCar::CheckBound(const Transmission & value, const Border & rangeValues)
+bool CCar::CheckBound(const Transmission & value, const Border & rangeValues)const
 {
 	int intValue = static_cast<int>(value);
 	return CheckBound(intValue, rangeValues);
 }
 
-bool CCar::CheckBound(const int & value, const Border & rangeValues)
+bool CCar::CheckBound(const int & value, const Border & rangeValues)const
 {
 	return (value >= rangeValues.bottomBound && value <= rangeValues.upperBound);
 }

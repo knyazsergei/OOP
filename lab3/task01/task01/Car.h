@@ -7,7 +7,7 @@ class CCar
 public:
 	CCar();
 
-	InfoAboutCar GetInfo() const;
+	CarInfo GetInfo() const;
 	bool TurnOnEngine();
 	bool TurnOffEngine();
 	bool SetGear(const Transmission & gear);
@@ -19,8 +19,8 @@ private:
 	bool m_engineLaunched;
 	Direction m_direction;
 
-	bool CheckBound(const Transmission & value, const Border & rangeValues);
-	bool CheckBound(const int & value, const Border & rangeValues);
+	bool CheckBound(const Transmission & value, const Border & rangeValues)const;
+	bool CheckBound(const int & value, const Border & rangeValues)const;
 
 	void SetDirection();
 };
