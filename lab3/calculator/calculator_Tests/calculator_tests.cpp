@@ -33,17 +33,18 @@ BOOST_AUTO_TEST_CASE(Change_variable)
 	BOOST_CHECK_EQUAL(calc.GetVar("a") == 100, true);
 }
 
-BOOST_AUTO_TEST_CASE(Check_creat_functions)
+BOOST_AUTO_TEST_CASE(Check_creat_wrong_function)
+{
+	BOOST_CHECK_EQUAL(calc.SetFn("a", "4", OperatorType::plus, "2"), false);
+	BOOST_CHECK_EQUAL(calc.SetFn("23", "a", OperatorType::plus, "2"), false);
+	BOOST_CHECK_EQUAL(calc.SetFn("fn3", "not_specified_variable", OperatorType::plus, "b"), false);
+}
+
+BOOST_AUTO_TEST_CASE(Check_creat_correct_function)
 {
 	BOOST_CHECK_EQUAL(calc.SetFn("fn1", "4", OperatorType::plus, "2"), true);
-	calc.Let("a", "0");
 	BOOST_CHECK_EQUAL(calc.SetFn("fn2", "a", OperatorType::plus, "2"), true);
-	calc.Let("b", "0");
 	BOOST_CHECK_EQUAL(calc.SetFn("fn3", "a", OperatorType::plus, "b"), true);
-	calc.Let("a", "1");
-	calc.Let("b", "2");
-	BOOST_CHECK_EQUAL(calc.SetFn("fn4", "a", OperatorType::plus, "b"), true);
-	BOOST_CHECK_EQUAL(calc.CalculateFn("fn4"), 3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
