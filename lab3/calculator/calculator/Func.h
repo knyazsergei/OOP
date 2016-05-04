@@ -1,6 +1,8 @@
 #pragma once
 #include <map>
 #include <boost/container/small_vector.hpp>
+#include <boost/optional/optional.hpp>
+
 class CCalculator;
 
 enum class OperatorType
@@ -12,7 +14,6 @@ enum class OperatorType
 	multiplication,
 	division,
 	degree,
-
 	none
 };
 
@@ -20,18 +21,17 @@ class CFunc
 {
 public:
 	double m_result = NAN;
-	CFunc(std::shared_ptr<CCalculator> calc,
+	CFunc(
 		const std::string & fnName,
 		const std::string & firstId,
 		OperatorType & operatorType,
 		const std::string & secondId);
-	CFunc(std::shared_ptr<CCalculator> calc, const std::string & fnName, const std::string & firstId);
+	CFunc(const std::string & fnName, const std::string & firstId);
 
-	double Run();
-	void getDepency();
+	boost::optional<double> Run(CCalculator & calc);
+	void GetDepency(CCalculator & calc)const;
 private:
 	bool m_complex = false;
-	std::shared_ptr<CCalculator> m_calc;
 	std::string m_fnName;
 
 	std::string m_firstId;

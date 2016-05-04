@@ -17,7 +17,7 @@ CCalculator::~CCalculator()
 
 bool CCalculator::Let(const std::string & nameFirstVar, const std::string & nameSecondVar)
 {
-	if (!CheckIdentificator(nameFirstVar))
+	if (!CheckIdentifier(nameFirstVar))
 	{
 		return false;
 	}
@@ -26,7 +26,7 @@ bool CCalculator::Let(const std::string & nameFirstVar, const std::string & name
 		m_listOfVar[nameFirstVar] = NAN;
 	}
 	
-	if (isNumber(nameSecondVar))
+	if (IsNumber(nameSecondVar))
 	{
 		m_listOfVar[nameFirstVar] = std::stod(nameSecondVar);
 		return true;
@@ -39,24 +39,26 @@ bool CCalculator::SetFn(const std::string & fnName,
 	OperatorType operatorType,
 	const std::string & secondId)
 {
-	if (!CheckIdentificator(fnName))
+	if (!CheckIdentifier(fnName) || m_listOfVar.count(fnName) || 
+		!((m_listOfVar.count(firstId) || m_listOfFn.count(firstId) || IsNumber(firstId)) &&
+		(m_listOfVar.count(secondId) || m_listOfFn.count(secondId) || IsNumber(secondId) || secondId != ""))
+		)
 	{
 		return false;
 	}
 
-	std::shared_ptr<CCalculator>calc(this);
 	if (secondId == "")
 	{
-		m_listOfFn[fnName] = std::make_shared<CFunc>(calc, fnName, firstId);
+		m_listOfFn[fnName] = std::make_shared<CFunc>(fnName, firstId);
 	}
 	else
 	{
-		m_listOfFn[fnName] = std::make_shared<CFunc>(calc, fnName, firstId, operatorType, secondId);
+		m_listOfFn[fnName] = std::make_shared<CFunc>(fnName, firstId, operatorType, secondId);
 	}
 	return true;
 }
 
-bool CCalculator::CheckIdentificator(const std::string & str)const
+bool CCalculator::CheckIdentifier(const std::string & str)const
 {
 	if (str.size() == 0 || !(isalpha(str[0]) || str[0] == '_'))
 	{
@@ -74,17 +76,26 @@ bool CCalculator::CheckIdentificator(const std::string & str)const
 	return true;
 }
 
-double CCalculator::GetVar(const std::string & varName)const
+boost::optional<double> CCalculator::GetVar(const std::string & varName)const
 {
-	return m_listOfVar.at(varName);
+	boost::optional<double> result;
+	try
+	{
+		result = m_listOfVar.at(varName);
+	}
+	catch(int e)
+	{
+		std::cout << "The variable is not declared" << std::endl;
+	}
+	return result;
 }
 
-double CCalculator::CalculateFn(const std::string & fnName)
+boost::optional<double> CCalculator::CalculateFn(const std::string & fnName)
 {
-	return m_listOfFn[fnName]->Run();
+	return m_listOfFn[fnName]->Run(*this);
 }
 
-double CCalculator::operator[](const std::string & id)
+boost::optional<double> CCalculator::operator[](const std::string & id)
 {
 	if (m_listOfVar.count(id))
 	{
@@ -96,16 +107,17 @@ double CCalculator::operator[](const std::string & id)
 		return CalculateFn(id);
 	}
 
-	if(isNumber(id))
+	if (IsNumber(id))
 	{
 		return std::stod(id);
 	}
 	return NAN;
 }
 
-bool CCalculator::Print(const std::string & id)
+boost::optional<double> CCalculator::GetValue(const std::string & id)
 {
-	if (CheckIdentificator(id))
+	boost::optional<double> result;
+	if (CheckIdentifier(id))
 	{
 		if (m_listOfFn.count(id))
 		{
@@ -118,26 +130,29 @@ bool CCalculator::Print(const std::string & id)
 				std::string word = m_cashDependenceBuffer[m_cashDependenceBuffer.size() - 1];
 				m_cashDependenceBuffer.pop_back();
 				m_cashDependence.push_back(word);
-				m_listOfFn[word]->getDepency();
+				m_listOfFn[word]->GetDepency(*this);
 			}
 			std::reverse(m_cashDependence.begin(), m_cashDependence.end());
 			for (auto it : m_cashDependence)
 			{
 				CalculateFn(it);
 			}
-			std::cout << "result:" << CalculateFn(id) << std::endl;
+			result = CalculateFn(id);
+			//std::cout << "result:" << CalculateFn(id) << std::endl;
 		}
 		else if(m_listOfVar.count(id))
 		{
-			std::cout << GetVar(id) << std::endl;
+			result = GetVar(id);
+			//std::cout << GetVar(id) << std::endl;
 		}
-		return true;
+		return result;
 	}
-	std::cout << id << std::endl;
-	return true;
+	//std::cout << id << std::endl;
+	return result;
 }
 
-namespace std{
+namespace std
+{
 	std::ostream &operator<<(std::ostream &stream, const std::pair<std::string, double>& pairElement)
 	{
 		return stream << pairElement.first << " " << pairElement.second << std::endl;
@@ -148,19 +163,39 @@ namespace std{
 	}
 }
 
-bool CCalculator::PrintVars()const
+bool CCalculator::GetVars()const
 {
 	std::copy(m_listOfVar.begin(), m_listOfVar.end(), std::ostream_iterator< std::pair<std::string, double>>(std::cout, ""));
 	return true;
 }
 
-bool CCalculator::PrintFns()
+bool CCalculator::GetFns()
 {
 	std::copy(m_listOfFn.begin(), m_listOfFn.end(), std::ostream_iterator< std::pair<std::string, std::shared_ptr<CFunc> > >(std::cout, ""));
 	return true;
 }
 
-bool isNumber(const std::string& s)
+std::map <std::string, double>::const_iterator CCalculator::BeginItForVariablesList() const
+{
+	return m_listOfVar.begin();
+}
+
+std::map <std::string, double>::const_iterator CCalculator::EndItForVariablesList() const
+{
+	return m_listOfVar.end();
+}
+
+std::map <std::string, std::shared_ptr<CFunc>>::const_iterator CCalculator::BeginItForFunctionList() const
+{
+	return m_listOfFn.begin();
+}
+
+std::map <std::string, std::shared_ptr<CFunc>>::const_iterator CCalculator::EndItForFunctionList() const
+{
+	return m_listOfFn.end();
+}
+
+bool IsNumber(const std::string& s)
 {
 	return(strspn(s.c_str(), "-.0123456789") == s.size());
 }

@@ -6,7 +6,6 @@
 #include "stdafx.h"
 #include "Calculator.h"
 #include <boost/container/small_vector.hpp>
-#include <valarray>
 
 class CParser
 {
@@ -15,7 +14,7 @@ public:
 	~CParser();
 	void ProcessCode(const std::string & code);
 private:
-	boost::container::small_vector<std::string, 10> getArgs(const std::string & srm);
+	boost::container::small_vector<std::string, 10> GetArgs(const std::string & srm);
 
 	bool ProcessLine(std::string str);
 	bool ProcessFnLine(const boost::container::small_vector<std::string, 10> & args, size_t shift);

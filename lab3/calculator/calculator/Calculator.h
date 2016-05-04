@@ -8,6 +8,9 @@
 #include <vector>
 //#include "Tree.h"
 #include "Func.h"
+#include <boost/iterator/indirect_iterator.hpp>
+#include <boost/optional/optional.hpp>
+#include <boost/optional/optional_io.hpp>
 
 class CCalculator
 {
@@ -22,17 +25,23 @@ public:
 		OperatorType operatorType,
 		const std::string & secondId="");
 
-	bool Print(const std::string & id);
-	bool PrintVars()const;
-	bool PrintFns();
+	boost::optional<double> GetValue(const std::string & id);
+	bool GetVars()const;
 
-	double operator[](const std::string & id);
+	std::map<std::string, double>::const_iterator BeginItForVariablesList() const;
+	std::map<std::string, double>::const_iterator EndItForVariablesList() const;
 
-	double GetVar(const std::string & varName)const;
-	double CalculateFn(const std::string & fnName);
+	std::map<std::string, std::shared_ptr<CFunc>>::const_iterator BeginItForFunctionList() const;
+	std::map<std::string, std::shared_ptr<CFunc>>::const_iterator EndItForFunctionList() const;
+
+	bool GetFns();
+
+	boost::optional<double> operator[](const std::string & id);
+
+	boost::optional<double> GetVar(const std::string & varName)const;
+	boost::optional<double> CalculateFn(const std::string & fnName);
 private:
-	
-	bool CheckIdentificator(const std::string & str)const;
+	bool CheckIdentifier(const std::string & str)const;
 
 	std::map<std::string, double> m_listOfVar;
 	std::map<std::string, std::shared_ptr<CFunc>> m_listOfFn;
@@ -43,4 +52,4 @@ private:
 	std::vector<std::string> m_cashDependence;
 };
 
-bool isNumber(const std::string& s);
+bool IsNumber(const std::string& s);

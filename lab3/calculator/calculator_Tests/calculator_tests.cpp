@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(Check_set_incorrect_value)
 BOOST_AUTO_TEST_CASE(Change_variable)
 {
 	BOOST_CHECK_EQUAL(calc.Let("a", "100"), true);
-	BOOST_CHECK_EQUAL(calc.GetVar("a") == 100, true);
+	BOOST_CHECK_EQUAL(calc.GetVar("a").get() == 100, true);
 }
 
 BOOST_AUTO_TEST_CASE(Check_creat_wrong_function)

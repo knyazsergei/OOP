@@ -14,7 +14,7 @@ int main()
 	std::shared_ptr<CCalculator> calc = std::make_shared<CCalculator>();
 	CParser parser(calc);
 
-	while (getline(std::cin, str) && str != "")
+	while (getline(std::cin, str) && !str.empty())
 	{
 		parser.ProcessCode(str);
 	}

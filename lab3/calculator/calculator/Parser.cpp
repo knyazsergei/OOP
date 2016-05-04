@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Parser.h"
+#include <iostream>
 
 CParser::CParser(std::shared_ptr<CCalculator> calc)
 {
@@ -28,7 +29,7 @@ void CParser::ProcessCode(const std::string & code)
 	}
 }
 
-boost::container::small_vector<std::string, 10> CParser::getArgs(const std::string & srm)
+boost::container::small_vector<std::string, 10> CParser::GetArgs(const std::string & srm)
 {
 	boost::container::small_vector<std::string, 10> result;
 	std::string value;
@@ -40,12 +41,13 @@ boost::container::small_vector<std::string, 10> CParser::getArgs(const std::stri
 		
 		if (m_equalOperatorType.count(sch) || isspace(ch))
 		{
-			if (value != "")
+			if (!value.empty())
 			{
 				result.push_back(value);
 			}
 
-			if (!isspace(ch)) {
+			if (!isspace(ch)) 
+			{
 				result.push_back(sch);
 			}
 			value = "";
@@ -66,7 +68,7 @@ boost::container::small_vector<std::string, 10> CParser::getArgs(const std::stri
 
 bool CParser::ProcessLine(std::string str)
 {
-	boost::container::small_vector<std::string, 10> args = getArgs(str);
+	boost::container::small_vector<std::string, 10> args = GetArgs(str);
 	if (args.size() == 0)
 	{
 		return false;
@@ -78,19 +80,27 @@ bool CParser::ProcessLine(std::string str)
 	}
 	else if (args[0] == "printfns")
 	{
-		return m_calc->PrintFns();
+		return m_calc->GetFns();
 	}
 	else if (args[0] == "printvars")
 	{
-		return m_calc->PrintVars();
+		return m_calc->GetVars();
+	}
+	else if (args[0] == "printvar")
+	{
+		if (m_calc->GetVar(args[1]).is_initialized())
+		{
+			std::cout << m_calc->GetVar(args[1]).get() << std::endl;
+		}
 	}
 	else if (args[0] == "let")
 	{
 		return ProcessLetLine(args, 1);
 	}
-	else if (args[0] == "print" && args.size() == 2)
+	else if (args[0] == "print" && args.size() == 2 && m_calc->GetValue(args[1]).is_initialized())
 	{
-		return m_calc->Print(args[1]);
+		std::cout << m_calc->GetValue(args[1]).get();
+		return m_calc->GetValue(args[1]).is_initialized();
 	}
 	else if (str.find('=') != std::string::npos)
 	{
@@ -103,7 +113,12 @@ bool CParser::ProcessLine(std::string str)
 			return ProcessFnLine(args, 0);
 		}
 	}
-	return m_calc->Print(str);
+	else if (m_calc->GetValue(str).is_initialized())
+	{
+		std::cout << m_calc->GetValue(str).get() << std::endl;
+		return true;
+	}	
+	return false;
 }
 
 bool CParser::ProcessFnLine(const boost::container::small_vector<std::string, 10> & args, size_t shift)
