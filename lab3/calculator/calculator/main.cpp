@@ -9,14 +9,14 @@
 int main()
 {
 	std::cout << std::fixed << std::setprecision(2);
-	CParser parser;
 	std::string str;
 
 	std::shared_ptr<CCalculator> calc = std::make_shared<CCalculator>();
-	
+	CParser parser(calc);
+
 	while (getline(std::cin, str) && str != "")
 	{
-		parser.ProcessCode(str, calc);
+		parser.ProcessCode(str);
 	}
 	return EXIT_SUCCESS;
 }

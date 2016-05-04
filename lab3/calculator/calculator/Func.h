@@ -1,15 +1,18 @@
 #pragma once
 #include <map>
+#include <boost/container/small_vector.hpp>
 class CCalculator;
 
 enum class OperatorType
 {
+	equals,
 	equally,
 	plus,
 	minus,
 	multiplication,
 	division,
 	degree,
+
 	none
 };
 
@@ -17,16 +20,19 @@ class CFunc
 {
 public:
 	double m_result = NAN;
-	CFunc();
-	CFunc(const std::string & firstId,
+	CFunc(std::shared_ptr<CCalculator> calc,
+		const std::string & fnName,
+		const std::string & firstId,
 		OperatorType & operatorType,
 		const std::string & secondId);
-	CFunc(const std::string & firstId);
+	CFunc(std::shared_ptr<CCalculator> calc, const std::string & fnName, const std::string & firstId);
 
-	double Run(CCalculator & calculator, const std::string & fnName, std::map<std::string, double> & cashFnList);
+	double Run();
+	void getDepency();
 private:
 	bool m_complex = false;
-	
+	std::shared_ptr<CCalculator> m_calc;
+	std::string m_fnName;
 
 	std::string m_firstId;
 	OperatorType m_operatorType;

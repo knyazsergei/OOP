@@ -11,9 +11,9 @@
 class CParser
 {
 public:
-	CParser();
+	CParser(std::shared_ptr<CCalculator> calc);
 	~CParser();
-	void ProcessCode(const std::string & code, std::shared_ptr<CCalculator> calc);
+	void ProcessCode(const std::string & code);
 private:
 	boost::container::small_vector<std::string, 10> getArgs(const std::string & srm);
 

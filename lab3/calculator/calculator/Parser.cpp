@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "Parser.h"
 
-CParser::CParser()
+CParser::CParser(std::shared_ptr<CCalculator> calc)
 {
+	m_calc = calc;
 	m_equalOperatorType = {
-		{ "=", OperatorType::equally },
+		{ "==", OperatorType::equally },
+		{ "=", OperatorType::equals },
 		{ "+", OperatorType::plus },
 		{ "-", OperatorType::minus },
 		{ "*", OperatorType::multiplication },
@@ -18,17 +20,11 @@ CParser::~CParser()
 {
 }
 
-void CParser::ProcessCode(const std::string & code, std::shared_ptr<CCalculator> calc)
+void CParser::ProcessCode(const std::string & code)
 {
-	m_calc = calc;
-	std::string line;
-	std::stringstream sCode(code);
-	while (getline(sCode, line))
+	if (!ProcessLine(code))
 	{
-		if (!ProcessLine(line))
-		{
-			std::cout << "Error\n";
-		}
+		std::cout << "Error\n";
 	}
 }
 
@@ -37,12 +33,18 @@ boost::container::small_vector<std::string, 10> CParser::getArgs(const std::stri
 	boost::container::small_vector<std::string, 10> result;
 	std::string value;
 	std::string sch;
+	
 	for (auto ch : srm)
 	{
 		sch = std::string(1, ch);
+		
 		if (m_equalOperatorType.count(sch) || isspace(ch))
 		{
-			result.push_back(value);
+			if (value != "")
+			{
+				result.push_back(value);
+			}
+
 			if (!isspace(ch)) {
 				result.push_back(sch);
 			}
@@ -53,10 +55,12 @@ boost::container::small_vector<std::string, 10> CParser::getArgs(const std::stri
 			value += ch;
 		}
 	}
+
 	if (value.length() > 0)
 	{
 		result.push_back(value);
 	}
+	
 	return result;
 }
 
@@ -67,39 +71,24 @@ bool CParser::ProcessLine(std::string str)
 	{
 		return false;
 	}
-	/*{
-		std::stringstream srm(str);
-		std::string word;
 
-		while (srm >> word)
-		{
-			args.push_back(word);
-			std::cout << word << std::endl;
-		}
-	}*/
-	/*std::cout << args.size() << ": ";
-	std::copy(args.begin(), args.end(), std::ostream_iterator<std::string>(std::cout, " "));
-	std::cout << std::endl;
-*/
 	if (args[0] == "fn")
 	{
 		return ProcessFnLine(args, 1);
 	}
 	else if (args[0] == "printfns")
 	{
-		m_calc->PrintFns();
-		return true;
+		return m_calc->PrintFns();
 	}
 	else if (args[0] == "printvars")
 	{
-		m_calc->PrintVars();
-		return true;
+		return m_calc->PrintVars();
 	}
 	else if (args[0] == "let")
 	{
 		return ProcessLetLine(args, 1);
 	}
-	else if (args[0] == "print")
+	else if (args[0] == "print" && args.size() == 2)
 	{
 		return m_calc->Print(args[1]);
 	}
@@ -112,7 +101,6 @@ bool CParser::ProcessLine(std::string str)
 		else if (args.size() > 4)
 		{
 			return ProcessFnLine(args, 0);
-
 		}
 	}
 	return m_calc->Print(str);
@@ -125,6 +113,5 @@ bool CParser::ProcessFnLine(const boost::container::small_vector<std::string, 10
 
 bool CParser::ProcessLetLine(const boost::container::small_vector<std::string, 10> & args, size_t shift)
 {
-	std::cout << args[shift] << " " << args[shift + 2] << std::endl;
 	return m_calc->Let(args[shift], args[shift + 2]);
 }

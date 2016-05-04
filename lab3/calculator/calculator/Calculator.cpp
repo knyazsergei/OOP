@@ -15,14 +15,8 @@ CCalculator::~CCalculator()
 {
 }
 
-bool CCalculator::isNumber(const std::string& s)
-{
-	return(strspn(s.c_str(), "-.0123456789") == s.size());
-}
-
 bool CCalculator::Let(const std::string & nameFirstVar, const std::string & nameSecondVar)
 {
-
 	if (!CheckIdentificator(nameFirstVar))
 	{
 		return false;
@@ -37,13 +31,7 @@ bool CCalculator::Let(const std::string & nameFirstVar, const std::string & name
 		m_listOfVar[nameFirstVar] = std::stod(nameSecondVar);
 		return true;
 	}
-	else if(!m_listOfVar.count(nameSecondVar))
-	{
-		return false;
-	}
-
-	m_listOfVar[nameFirstVar] = m_listOfVar[nameSecondVar];
-	return true;
+	return false;
 }
 
 bool CCalculator::SetFn(const std::string & fnName,
@@ -56,15 +44,15 @@ bool CCalculator::SetFn(const std::string & fnName,
 		return false;
 	}
 
+	std::shared_ptr<CCalculator>calc(this);
 	if (secondId == "")
 	{
-		m_listOfFn[fnName] = CFunc(firstId);
+		m_listOfFn[fnName] = std::make_shared<CFunc>(calc, fnName, firstId);
 	}
 	else
 	{
-		m_listOfFn[fnName] = CFunc(firstId, operatorType, secondId);
+		m_listOfFn[fnName] = std::make_shared<CFunc>(calc, fnName, firstId, operatorType, secondId);
 	}
-	
 	return true;
 }
 
@@ -86,14 +74,14 @@ bool CCalculator::CheckIdentificator(const std::string & str)const
 	return true;
 }
 
-double CCalculator::GetVar(std::string varName)const
+double CCalculator::GetVar(const std::string & varName)const
 {
 	return m_listOfVar.at(varName);
 }
 
-double CCalculator::CalculateFn(std::string fnName)
+double CCalculator::CalculateFn(const std::string & fnName)
 {
-	return m_listOfFn[fnName].Run(*this, fnName, cashFnList);
+	return m_listOfFn[fnName]->Run();
 }
 
 double CCalculator::operator[](const std::string & id)
@@ -117,50 +105,62 @@ double CCalculator::operator[](const std::string & id)
 
 bool CCalculator::Print(const std::string & id)
 {
-	if (CheckIdentificator(id) && ( m_listOfFn.count(id) || m_listOfVar.count(id)))
+	if (CheckIdentificator(id))
 	{
-		std::cout << (*this)[id] << std::endl;
+		if (m_listOfFn.count(id))
+		{
+			m_cashFnList.clear();
+			m_cashDependenceBuffer.clear();
+			m_cashDependence.clear();
+			m_cashDependenceBuffer.push_back(id);
+			while(m_cashDependenceBuffer.size() > 0)
+			{
+				std::string word = m_cashDependenceBuffer[m_cashDependenceBuffer.size() - 1];
+				m_cashDependenceBuffer.pop_back();
+				m_cashDependence.push_back(word);
+				m_listOfFn[word]->getDepency();
+			}
+			std::reverse(m_cashDependence.begin(), m_cashDependence.end());
+			for (auto it : m_cashDependence)
+			{
+				CalculateFn(it);
+			}
+			std::cout << "result:" << CalculateFn(id) << std::endl;
+		}
+		else if(m_listOfVar.count(id))
+		{
+			std::cout << GetVar(id) << std::endl;
+		}
+		return true;
 	}
-	else
-	{
-		std::cout << id << std::endl;
-	}
+	std::cout << id << std::endl;
 	return true;
 }
+
 namespace std{
-std::ostream &operator<<(std::ostream &stream, const std::pair<std::string, double>& pairElement)
-{
-	return stream << pairElement.first << " " << pairElement.second << std::endl;
-}
+	std::ostream &operator<<(std::ostream &stream, const std::pair<std::string, double>& pairElement)
+	{
+		return stream << pairElement.first << " " << pairElement.second << std::endl;
+	}
+	std::ostream &operator<<(std::ostream &os, std::pair<std::string, std::shared_ptr<CFunc> > const &t) 
+	{
+		return os << t.first << " " << t.second->m_result << std::endl;
+	}
 }
 
 bool CCalculator::PrintVars()const
 {
-	//std::copy(m_listOfVar.begin(), m_listOfVar.end(), std::ostream_iterator< std::pair<std::string, double>>(std::cout, ""));
-	/*
-	for (const auto & it : m_listOfVar)
-	{
-		std::cout << it.first << ":" << m_listOfVar.at(it.first) << std::endl;
-	}
-	*/
+	std::copy(m_listOfVar.begin(), m_listOfVar.end(), std::ostream_iterator< std::pair<std::string, double>>(std::cout, ""));
 	return true;
-}
-
-namespace std {
-	std::ostream &operator<<(std::ostream &os, std::pair<std::string, CFunc > const &t) {
-		return os << t.first << " " << t.second.m_result;
-	}
 }
 
 bool CCalculator::PrintFns()
 {
-	//std::copy(m_listOfVar.begin(), m_listOfVar.end(), std::ostream_iterator< std::pair<std::string, CFunc > >(std::cout, ""));
-
-	/*
-	for (const auto & it : m_listOfFn)
-	{
-		std::cout << it.first << ":" << m_listOfFn[it.first].m_firstId << m_listOfFn[it.first].m_operatorType << m_listOfFn[it.first].m_secondId << std::endl;
-	}
-	*/
+	std::copy(m_listOfFn.begin(), m_listOfFn.end(), std::ostream_iterator< std::pair<std::string, std::shared_ptr<CFunc> > >(std::cout, ""));
 	return true;
+}
+
+bool isNumber(const std::string& s)
+{
+	return(strspn(s.c_str(), "-.0123456789") == s.size());
 }

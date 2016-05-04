@@ -3,13 +3,15 @@
 #include <limits>
 #include <map>
 #include <string>
-#include <math.h> 
-#include "Func.h"
+#include <math.h>
 #include <ctype.h>
-#include "Tree.h"
+#include <vector>
+//#include "Tree.h"
+#include "Func.h"
 
 class CCalculator
 {
+	friend CFunc;
 public:
 	CCalculator();
 	~CCalculator();
@@ -26,16 +28,19 @@ public:
 
 	double operator[](const std::string & id);
 
-	double GetVar(std::string varName)const;
-	double CalculateFn(std::string fnName);
+	double GetVar(const std::string & varName)const;
+	double CalculateFn(const std::string & fnName);
 private:
-	bool isNumber(const std::string& s);
+	
 	bool CheckIdentificator(const std::string & str)const;
+
 	std::map<std::string, double> m_listOfVar;
-	std::map<std::string, CFunc> m_listOfFn;
+	std::map<std::string, std::shared_ptr<CFunc>> m_listOfFn;
 	//cash
-	std::map<std::string, double> cashFnList;
-	//call
-	CTree m_tree;
+	std::map<std::string, double> m_cashFnList;
+	//
+	std::vector<std::string> m_cashDependenceBuffer;
+	std::vector<std::string> m_cashDependence;
 };
 
+bool isNumber(const std::string& s);
