@@ -180,6 +180,7 @@ BundleArtifacts/
 ClientBin/
 ~$*
 *~
+*.db
 *.dbmdl
 *.dbproj.schemaview
 *.pfx
