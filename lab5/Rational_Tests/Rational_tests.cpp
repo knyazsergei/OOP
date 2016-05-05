@@ -515,6 +515,13 @@ BOOST_AUTO_TEST_CASE(not_equal_operator_with_unit)
 //	3 <= (7/2)     → true
 //	3 >= (8/2)     → false
 //////////////////////////////////////////////////////////////////////////
+struct ComparisonOperatorFixture
+{
+	CRational rational1;
+	ComparisonOperatorFixture()
+		: rational1(9, 5)
+	{}
+};
 
 BOOST_AUTO_TEST_CASE(more_operator_with_unit)
 {
