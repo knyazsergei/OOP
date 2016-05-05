@@ -323,9 +323,9 @@ struct MultiplyOperatorFixture
 BOOST_FIXTURE_TEST_SUITE(multiply_operator, MultiplyOperatorFixture)
 BOOST_AUTO_TEST_CASE(multiply_operator_with_sixth_part)
 {
-	auto r2 = rational1 * CRational(1, 6);
-	BOOST_CHECK_EQUAL(r2.GetNumerator(), 5);
-	BOOST_CHECK_EQUAL(r2.GetDenominator(), 36);
+	auto rational2 = rational1 * CRational(1, 6);
+	BOOST_CHECK_EQUAL(rational2.GetNumerator(), 5);
+	BOOST_CHECK_EQUAL(rational2.GetDenominator(), 36);
 }
 BOOST_AUTO_TEST_CASE(multiply_operator_with_unit)
 {
