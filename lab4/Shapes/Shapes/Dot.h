@@ -1,5 +1,6 @@
 #pragma once
 #include "IShape.h"
+
 class CDot :
 	public IShape
 {

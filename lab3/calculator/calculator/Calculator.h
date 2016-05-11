@@ -14,7 +14,6 @@
 
 class CCalculator
 {
-	friend CFunc;
 public:
 	CCalculator();
 	~CCalculator();

@@ -123,6 +123,11 @@ bool CParser::ProcessLine(std::string str)
 
 bool CParser::ProcessFnLine(const boost::container::small_vector<std::string, 10> & args, size_t shift)
 {
+	if (args.size() == 4)
+	{
+		
+		return m_calc->SetFn(args[shift + 0], args[shift + 2], m_equalOperatorType["="], "");
+	}
 	return m_calc->SetFn(args[shift + 0], args[shift + 2], m_equalOperatorType[args[shift + 3]], args[shift + 4]);
 }
 

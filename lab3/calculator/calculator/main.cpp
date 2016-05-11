@@ -5,6 +5,7 @@
 #include "Calculator.h"
 #include "Parser.h"
 #include <iomanip>
+#include <fstream>
 
 int main()
 {
@@ -13,11 +14,22 @@ int main()
 
 	std::shared_ptr<CCalculator> calc = std::make_shared<CCalculator>();
 	CParser parser(calc);
+	
+	std::ifstream iFile("code.txt");
+	if (iFile.is_open())
+	{
+		while (getline(iFile, str) && !str.empty())
+		{
+			std::cout << str << std::endl;
+			parser.ProcessCode(str);
+		}
 
+	}
 	while (getline(std::cin, str) && !str.empty())
 	{
 		parser.ProcessCode(str);
 	}
+	
 	return EXIT_SUCCESS;
 }
 

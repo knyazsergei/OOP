@@ -85,14 +85,14 @@ boost::optional<double> CCalculator::GetVar(const std::string & varName)const
 	}
 	catch(int e)
 	{
-		std::cout << "The variable is not declared" << std::endl;
+		std::cout << "The variable is not declared" << e << std::endl;
 	}
 	return result;
 }
 
 boost::optional<double> CCalculator::CalculateFn(const std::string & fnName)
 {
-	return m_listOfFn[fnName]->Run(*this);
+	return m_listOfFn[fnName]->Run(*this, m_cashFnList);
 }
 
 boost::optional<double> CCalculator::operator[](const std::string & id)
@@ -130,7 +130,7 @@ boost::optional<double> CCalculator::GetValue(const std::string & id)
 				std::string word = m_cashDependenceBuffer[m_cashDependenceBuffer.size() - 1];
 				m_cashDependenceBuffer.pop_back();
 				m_cashDependence.push_back(word);
-				m_listOfFn[word]->GetDepency(*this);
+				m_listOfFn[word]->GetDepency(m_cashDependence, m_cashDependenceBuffer, m_listOfFn);
 			}
 			std::reverse(m_cashDependence.begin(), m_cashDependence.end());
 			for (auto it : m_cashDependence)
@@ -138,16 +138,13 @@ boost::optional<double> CCalculator::GetValue(const std::string & id)
 				CalculateFn(it);
 			}
 			result = CalculateFn(id);
-			//std::cout << "result:" << CalculateFn(id) << std::endl;
 		}
 		else if(m_listOfVar.count(id))
 		{
 			result = GetVar(id);
-			//std::cout << GetVar(id) << std::endl;
 		}
 		return result;
 	}
-	//std::cout << id << std::endl;
 	return result;
 }
 
@@ -159,7 +156,7 @@ namespace std
 	}
 	std::ostream &operator<<(std::ostream &os, std::pair<std::string, std::shared_ptr<CFunc> > const &t) 
 	{
-		return os << t.first << " " << t.second->m_result << std::endl;
+		return os << t.first << " " << (t.second->GetLastResult().is_initialized() ? t.second->GetLastResult().get() : NAN) << std::endl;
 	}
 }
 
