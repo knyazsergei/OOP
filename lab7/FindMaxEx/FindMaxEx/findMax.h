@@ -20,14 +20,16 @@ bool FindMax(std::vector<T> const& arr, T& maxValue, Less const& less)
 	{
 		return false;
 	}
+	T bufferMaxValue = maxValue
 	bool changed = false;
 	for (auto it : arr)
 	{
 		if (less(maxValue, it))
 		{
 			changed = true;
-			maxValue = it;
+			bufferMaxValue = it;
 		}
 	}
+	maxValue = bufferMaxValue;
 	return changed;
 }
