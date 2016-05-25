@@ -27,6 +27,9 @@
     <ClInclude Include="..\http_url\UrlParsingError.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="..\http_url\HttpUrl.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -39,6 +42,9 @@
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
     <ClCompile Include="..\http_url\UrlParsingError.cpp">
+      <Filter>Заголовочные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="..\http_url\HttpUrl.cpp">
       <Filter>Заголовочные файлы</Filter>
     </ClCompile>
   </ItemGroup>

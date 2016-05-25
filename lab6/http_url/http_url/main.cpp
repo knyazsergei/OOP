@@ -2,13 +2,13 @@
 //
 
 #include "stdafx.h"
-#include "UrlParsingError.h"
+#include "HttpUrl.h"
 #include <iostream>
 
 int main()
 {
-	CHttpUrl url("https://habrahabr.ru/post/64226/");
-	std:: cout << url.GetURL();
+	CHttpUrl url("http://yandex.ru:36");
+	std:: cout << url.GetPort();
 	return 0;
 }
 
