@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "../MyString/MyString.h"
 #include <iostream>
-#include "MiniStr.h"
+#include "../MyString/MyString.h"
+#include "../MyString/MiniStr.h"
 
 using namespace std;
 
@@ -54,7 +54,7 @@ CMyString & CMyString::operator +=(const CMyString & str)
 			tempStr[i] = m_chars[j];
 			j++;
 		}
-
+		delete[] tempStr;
 		m_chars = CMiniStr(tempStr, m_length);
 	}
 	return *this;

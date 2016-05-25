@@ -4,82 +4,33 @@
 #include <memory>
 #include <iterator>
 
-
-template<typename ValueType>
-class StrIterator : public std::iterator<std::input_iterator_tag, ValueType>
+class CMiniStr
 {
-	friend class StrIterator;
 public:
-	StrIterator(ValueType* p);
-	StrIterator(CMyString & str, size_t index);
-	StrIterator(const StrIterator &it);
+	CMiniStr()
+	{}
 
-	bool operator!=(StrIterator const& other) const;
-	bool operator==(StrIterator const& other) const; //need for BOOST_FOREACH
-	typename StrIterator::reference operator*() const;
-	StrIterator& operator++();
+	CMiniStr(const char * chars, size_t count);
+
+	~CMiniStr();
+
+	char * Get()const;
+
+	void Clear();
+
+	size_t Size();
+
+	CMiniStr & operator=(CMiniStr&);
+	char &operator[](size_t index);
 private:
-	size_t m_index;
-	std::unique_ptr<CMyString> m_str;
+	size_t m_count = 0;
+	std::unique_ptr<char[]> m_chars;
 };
-
-template<typename ValueType>
-StrIterator<ValueType>::StrIterator(CMyString & str, size_t index):m_str(std::make_unique<CMyString>(str)), m_index(index)
-{
-}
-
-template<typename ValueType>
-StrIterator<ValueType>::StrIterator(ValueType *p) :
-	p(p)
-{
-
-}
-
-template<typename ValueType>
-StrIterator<ValueType>::StrIterator(const StrIterator& it) :
-	p(it.p)
-{
-
-}
-
-template<typename ValueType>
-bool StrIterator<ValueType>::operator!=(StrIterator const& other) const
-{
-	return p != other.p;
-}
-
-template<typename ValueType>
-bool StrIterator<ValueType>::operator==(StrIterator const& other) const
-{
-	return p == other.p;
-}
-
-template<typename ValueType>
-typename StrIterator<ValueType>::reference StrIterator<ValueType>::operator*() const
-{
-	return (*m_str)[m_index];
-}
-
-template<typename ValueType>
-StrIterator<ValueType> &StrIterator<ValueType>::operator++()
-{
-	++m_index;
-	return *this;
-}
-
 
 
 class CMyString
 {
 public:
-	typedef StrIterator<char> iterator;
-	typedef StrIterator<const char> const_iterator;
-
-	iterator begin();
-	iterator end();
-
-	//const_iterator begin() const;
-	//const_iterator end() const;
 	
 	CMyString();
 	CMyString(const char *pString);

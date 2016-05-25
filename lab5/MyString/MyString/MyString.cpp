@@ -3,28 +3,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <list>
-#include "MiniStr.h"
 
-CMyString::iterator CMyString::begin()
-{
-	return iterator(*this, size_t(0));
-}
-/*
-const_iterator CMyString::begin() const
-{
-	return const_iterator(*this, 0);
-}
-*/
-CMyString::iterator CMyString::end()
-{
-	return iterator(*this, size_t(m_length - 1));
-}
-/*
-const_iterator CMyString::end() const
-{
-	return const_iterator(*this, m_length - 1);
-}
-*/
 CMyString::CMyString()
 {
 	char chars[] = "\0";
@@ -134,4 +113,52 @@ void CMyString::Glue()const
 		m_flollowersCount = 0;
 		m_chars = CMiniStr(tempStr, m_length);
 	}
+}
+
+CMiniStr::CMiniStr(const char * chars, size_t count) :m_count(count)
+{
+	if (!count)
+	{
+		std::invalid_argument("CMiniStr");
+	}
+	m_chars = std::make_unique<char[]>(count);
+	memcpy(m_chars.get(), chars, count);
+}
+
+
+CMiniStr::~CMiniStr()
+{
+	m_chars.reset();
+}
+
+char * CMiniStr::Get()const
+{
+	return m_chars.get();
+}
+
+void CMiniStr::Clear()
+{
+	if (m_count > 0)
+	{
+		m_chars.reset();
+		m_count = 0;
+	}
+}
+
+size_t CMiniStr::Size()
+{
+	return m_count;
+}
+
+CMiniStr & CMiniStr::operator=(CMiniStr & str)
+{
+	m_chars = std::make_unique<char[]>(str.Size());
+	memcpy(m_chars.get(), str.m_chars.get(), str.Size());
+	m_count = str.m_count;
+	return *this;
+}
+
+char & CMiniStr::operator[](size_t index)
+{
+	return m_chars[index];
 }
