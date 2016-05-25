@@ -4,54 +4,6 @@
 #include <memory>
 #include <iterator>
 
-class CMyString;
-
-class CMiniStr {
-public:
-	CMiniStr()
-	{}
-	
-	CMiniStr(const char * chars, size_t count):m_count(count)
-	{
-		if (!count)
-		{
-			std::invalid_argument("CMiniStr");
-		}
-		m_chars = std::make_unique<char[]>(count);
-		memcpy(m_chars.get(), chars, count);
-	}
-
-	~CMiniStr()
-	{
-		m_chars.reset();
-	}
-
-	char * Get()const
-	{
-		return m_chars.get();
-	}
-
-	void Clear()
-	{
-		if (m_count > 0)
-		{
-			m_chars.reset();
-			m_count = 0;
-		}
-	}
-
-	size_t Size()
-	{
-		return m_count;
-	}
-
-	CMiniStr & operator=(CMiniStr&);
-	char &operator[](size_t index);
-private:
-	size_t m_count = 0;
-	std::unique_ptr<char[]> m_chars;
-};
-
 
 template<typename ValueType>
 class StrIterator : public std::iterator<std::input_iterator_tag, ValueType>
@@ -67,7 +19,6 @@ public:
 	typename StrIterator::reference operator*() const;
 	StrIterator& operator++();
 private:
-	ValueType* p;
 	size_t m_index;
 	std::unique_ptr<CMyString> m_str;
 };

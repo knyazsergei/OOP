@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <list>
-
+#include "MiniStr.h"
 
 CMyString::iterator CMyString::begin()
 {
@@ -47,10 +47,9 @@ CMyString::CMyString(const char * pString, size_t length)
 }
 
 CMyString::CMyString(CMyString const & other)
-	: m_length(other.m_length + 1)
+	: m_length(other.m_length)
 {
-	m_chars = CMiniStr(other.m_chars.Get(), other.m_length);
-	m_chars[m_length] = '\0';
+	m_chars = CMiniStr(other.GetStringData(), m_length);
 }
 
 CMyString::CMyString(CMyString && other)
@@ -62,8 +61,8 @@ CMyString::CMyString(CMyString && other)
 CMyString::CMyString(std::string const & stlString)
 	: m_length(stlString.size() + 1)
 {
-	m_chars = CMiniStr(stlString.c_str(), stlString.size());
-	m_chars[m_length] = '\0';
+	m_chars = CMiniStr(stlString.c_str(), m_length);
+	m_chars[m_length - 1] = '\0';
 }
 
 CMyString::~CMyString()
@@ -72,7 +71,7 @@ CMyString::~CMyString()
 
 size_t CMyString::GetLength() const
 {
-	return m_length - 1;
+	return m_length;
 }
 
 char * CMyString::GetStringData()const
@@ -135,17 +134,4 @@ void CMyString::Glue()const
 		m_flollowersCount = 0;
 		m_chars = CMiniStr(tempStr, m_length);
 	}
-}
-
-CMiniStr & CMiniStr::operator=(CMiniStr & str)
-{
-	m_chars = std::make_unique<char[]>(str.Size());
-	memcpy(m_chars.get(), str.m_chars.get(), str.Size());
-	m_count = str.m_count;
-	return *this;
-}
-
-char & CMiniStr::operator[](size_t index)
-{
-	return m_chars[index];
 }

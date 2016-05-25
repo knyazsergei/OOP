@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "../MyString/MyString.h"
 #include <iostream>
+#include "MiniStr.h"
 
 using namespace std;
 
@@ -13,7 +14,6 @@ CMyString & CMyString::operator =(const CMyString& str)
 		m_chars = CMiniStr( str.GetStringData(), m_length );
 		m_flollowersCount = 0;
 	}
-
 	return *this;
 }
 
@@ -100,14 +100,14 @@ bool operator <(const CMyString &str1, const CMyString &str2)
 {
 	return (memcmp(str1.GetStringData()
 		, str2.GetStringData()
-		, static_cast<size_t>(fmaxl(str1.GetLength(), str2.GetLength()))) == -1);
+		, static_cast<size_t>(fmaxl(static_cast<double>(str1.GetLength()), static_cast<double>(str2.GetLength())))) == -1);
 }
 
 bool operator >(const CMyString &str1, const CMyString &str2)
 {
 	return (memcmp(str1.GetStringData()
 		, str2.GetStringData()
-		, static_cast<size_t>(fmaxl(str1.GetLength(), str2.GetLength()))) == 1);
+		, static_cast<size_t>(fmaxl(static_cast<double>(str1.GetLength()), static_cast<double>(str2.GetLength())))) == 1);
 }
 
 bool operator <=(const CMyString &str1, const CMyString &str2)
@@ -145,7 +145,22 @@ char & CMyString::operator [](size_t index)
 
 ostream & operator <<(ostream & strm, CMyString const & string)
 {
-	strm << string.GetStringData();
+
+	for (size_t i = 0; i< string.GetLength(); ++i)
+	{
+#if(0)
+		if (string[i] == '\0')
+		{
+			strm << "\\0";
+		}
+		else
+		{
+			strm << string[i];
+		}
+#else
+		strm << string[i];
+#endif
+	}
 	return strm;
 }
 

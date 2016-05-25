@@ -6,12 +6,10 @@ using namespace std;
 
 int main()
 {
-	std::cout << (CMyString("Test String") == CMyString("Test String", 11u));
+	std::cout << (CMyString("Test String") == CMyString("Test String", 11u)) << std::endl;
 	auto srt = CMyString("Test");
-	for (auto it : srt)
-	{
-		std::cout << it << std::endl;
-	}
-	return EXIT_SUCCESS;
+	auto first = "CHAR*" + CMyString(" string");
+	std::cout << first << std::endl;
+ 	return EXIT_SUCCESS;
 }
 

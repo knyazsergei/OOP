@@ -145,12 +145,14 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MiniStr.h" />
     <ClInclude Include="MyString.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MiniStr.cpp" />
     <ClCompile Include="MyString.cpp" />
     <ClCompile Include="MyStringOperators.cpp" />
     <ClCompile Include="stdafx.cpp">
