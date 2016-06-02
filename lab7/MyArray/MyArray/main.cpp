@@ -6,7 +6,7 @@
 
 int main()
 {
-	CMyArray<int> arr;
+	CMyArray<int> arr({ 1, 2, 3 });
 	arr.Resize(10, 5);
 	arr.Clear();
 	arr[5];

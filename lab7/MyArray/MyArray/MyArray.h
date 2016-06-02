@@ -17,20 +17,45 @@ public:
 	CMyArray(CMyArray<T> && arr);
 
 	void PushBack(const T & item);
-	size_t Size();
+	size_t Size()const;
 	T & operator [](size_t index);
+	const T & operator [](size_t index)const;
 	void Resize(size_t size, T item);
 	void Clear();
 
-	/*CMyIterator<T> begin();
+	CMyIterator<T> begin();
 	CMyIterator<T> end();
 
 	CMyIterator<const T> begin() const;
-	CMyIterator<const T> end() const;*/
+	CMyIterator<const T> end() const;
+
+	CMyArray<T> & operator=(const CMyArray<T> & arr);
+	CMyArray<T> & operator=(std::initializer_list<T> values);
 private:
 	size_t m_size = 0;
 	std::unique_ptr<T[]> m_array;
 };
+
+template <typename T>
+CMyArray<T> & CMyArray<T>::operator=(std::initializer_list<T> values)
+{
+	m_arr = std::make_unique<T>(values.Size());
+	size_t i = 0;
+	for (auto it : values)
+	{
+		m_array[i] = it;
+		++i;
+	}
+	return *this;
+}
+
+template <typename T>
+CMyArray<T> & CMyArray<T>::operator=(const CMyArray<T> & arr)
+{
+	m_arr = std::make_unique<T>(arr.Size());
+	memcpy(m_array.get(), arr.m_array.get(), m_size * sizeof(m_size));
+	return *this;
+}
 
 template <typename T>
 CMyArray<T>::CMyArray()
@@ -38,29 +63,29 @@ CMyArray<T>::CMyArray()
 
 }
 
-//template <typename T>
-//CMyIterator<T> CMyArray<T>::begin()
-//{
-//	return CMyIterator<T>(m_array.get());
-//}
-//
-//template <typename T>
-//CMyIterator<T> CMyArray<T>::end()
-//{
-//	return CMyIterator<T>(m_array.get() + m_size);
-//}
-//
-//template <typename T>
-//CMyIterator<const T> CMyArray<T>::begin()const
-//{
-//	return CMyIterator<const T>(m_array.get());
-//}
-//
-//template <typename T>
-//CMyIterator<const T> CMyArray<T>::end()const
-//{
-//	return CMyIterator<const T>(m_array.get() + m_size);
-//}
+template <typename T>
+CMyIterator<T> CMyArray<T>::begin()
+{
+	return CMyIterator<T>(m_array.get());
+}
+
+template <typename T>
+CMyIterator<T> CMyArray<T>::end()
+{
+	return CMyIterator<T>(m_array.get() + m_size);
+}
+
+template <typename T>
+CMyIterator<const T> CMyArray<T>::begin()const
+{
+	return CMyIterator<const T>(m_array.get());
+}
+
+template <typename T>
+CMyIterator<const T> CMyArray<T>::end()const
+{
+	return CMyIterator<const T>(m_array.get() + m_size);
+}
 
 template <typename T>
 CMyArray<T>::CMyArray(size_t size, T item)
@@ -119,21 +144,34 @@ void CMyArray<T>::Resize(size_t size, T item)
 	{
 		m_array[i] = item;
 	}
+
 	m_size = size;
 }
 
 template <typename T>
 T & CMyArray<T>::operator[](size_t index)
 {
-	if (index < 0 || index >= m_size)
+	if (index >= m_size)
 	{
 		throw std::out_of_range("incorrect index");
 	}
 	return m_array[index];
 }
 
+
 template <typename T>
-size_t CMyArray<T>::Size()
+const T & CMyArray<T>::operator[](size_t index) const
+{
+	if (index >= m_size)
+	{
+		throw std::out_of_range("incorrect index");
+	}
+	return m_array[index];
+}
+
+
+template <typename T>
+size_t CMyArray<T>::Size()const
 {
 	return m_size;
 }
@@ -148,4 +186,3 @@ void CMyArray<T>::PushBack(const T & item)
 	memcpy(m_array.get(), buffer.get(), (m_size - 1) * sizeof(T));
 	m_array[m_size - 1] = item;
 }
-
