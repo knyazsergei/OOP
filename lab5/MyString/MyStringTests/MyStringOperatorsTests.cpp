@@ -25,7 +25,7 @@ BOOST_FIXTURE_TEST_SUITE(before_assignment_other_string_to_my_string, my_string_
 
 	BOOST_AUTO_TEST_CASE(existing_strings_length_is_equal_assignment_strings_length)
 	{
-		BOOST_CHECK_EQUAL(myString.GetLength(), 12u);
+		BOOST_CHECK_EQUAL(myString.GetLength(), 10u);
 	}
 
 	BOOST_AUTO_TEST_CASE(can_be_assign_itself)
@@ -65,9 +65,9 @@ BOOST_FIXTURE_TEST_SUITE(before_addition_strings, my_string_have_the_addition_op
 
 	BOOST_AUTO_TEST_CASE(existing_strings_length_is_equal_assignment_strings_length)
 	{
-		BOOST_CHECK_EQUAL(stlAddStr.GetLength(), 13u);
-		BOOST_CHECK_EQUAL(charArrAddStr.GetLength(), 15u);
-		BOOST_CHECK_EQUAL(myAddStr.GetLength(), 12u);
+		BOOST_CHECK_EQUAL(stlAddStr.GetLength(), 11u);
+		BOOST_CHECK_EQUAL(charArrAddStr.GetLength(), 13u);
+		BOOST_CHECK_EQUAL(myAddStr.GetLength(), 10u);
 	}
 
 	BOOST_AUTO_TEST_CASE(can_be_assign_addition_of_itself)
@@ -121,9 +121,9 @@ BOOST_AUTO_TEST_CASE(null_character_will_not_be_ignored)
 BOOST_AUTO_TEST_SUITE_END()
 
 //operator <
-	BOOST_AUTO_TEST_SUITE(less_operator)
+BOOST_AUTO_TEST_SUITE(less_operator)
 
-	BOOST_AUTO_TEST_CASE(can_find_out_which_of_rows_preceded_by_another_in_alphabetical_order)
+BOOST_AUTO_TEST_CASE(can_find_out_which_of_rows_preceded_by_another_in_alphabetical_order)
 {
 	BOOST_CHECK((CMyString("ab") < CMyString("abc", 3)));
 }

@@ -30,7 +30,7 @@
     <ClInclude Include="MyString.h">
       <Filter>Файлы исходного кода\MyString</Filter>
     </ClInclude>
-    <ClInclude Include="MiniStr.h">
+    <ClInclude Include="MyStringIterator.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>
@@ -46,9 +46,6 @@
     </ClCompile>
     <ClCompile Include="MyStringOperators.cpp">
       <Filter>Файлы исходного кода\MyString</Filter>
-    </ClCompile>
-    <ClCompile Include="MiniStr.cpp">
-      <Filter>Файлы исходного кода</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

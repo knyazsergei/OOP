@@ -169,13 +169,12 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\MyString\MiniStr.h" />
     <ClInclude Include="..\MyString\MyString.h" />
+    <ClInclude Include="..\MyString\MyStringIterator.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\MyString\MiniStr.cpp" />
     <ClCompile Include="..\MyString\MyString.cpp" />
     <ClCompile Include="..\MyString\MyStringOperators.cpp" />
     <ClCompile Include="main.cpp" />

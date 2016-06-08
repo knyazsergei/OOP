@@ -10,6 +10,7 @@ int main()
 	auto srt = CMyString("Test");
 	auto first = "CHAR*" + CMyString(" string");
 	std::cout << first << std::endl;
+
  	return EXIT_SUCCESS;
 }
 

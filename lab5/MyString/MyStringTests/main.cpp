@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include <boost/test/output/compiler_log_formatter.hpp>
-#include "../MyString/MyString.h"
 
 class SpecLogFormatter :
 	public boost::unit_test::output::compiler_log_formatter

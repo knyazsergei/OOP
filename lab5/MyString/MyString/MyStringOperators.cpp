@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include <iostream>
-#include "../MyString/MyString.h"
-#include "../MyString/MiniStr.h"
+#include "MyString.h"
+#include <algorithm>
+#include <boost\mpl\equal.hpp>
 
 using namespace std;
 
@@ -9,54 +10,23 @@ CMyString & CMyString::operator =(const CMyString& str)
 {
 	if (this != &str)
 	{
-		m_length = str.GetLength() + 1;
-		m_chars.Clear();
-		m_chars = CMiniStr( str.GetStringData(), m_length );
-		m_flollowersCount = 0;
+		m_chars = std::make_unique<char[]>(str.GetLength() + 1);
+		m_length = str.GetLength();
+		memcpy(m_chars.get(), str.GetStringData(),m_length);
+		m_chars[m_length] = '\0';
 	}
 	return *this;
 }
 
 CMyString & CMyString::operator +=(const CMyString & str)
 {
-	m_length += str.m_length;
-	if (m_flollowersCount < MAX_FOLLOWERS_COUNT)
-	{
-		m_pFollowers[m_flollowersCount] = CMiniStr(str.GetStringData(),str.GetLength());
-		++m_flollowersCount;
-	}
-	else
-	{
-		char * tempStr = new char[m_length];
-		//copy first str
-		for (size_t i = 0; i < m_chars.Size(); ++i)
-		{
-			tempStr[i] = m_chars[i];
-		}
-		size_t lenght = m_chars.Size();
-		m_chars.Clear();
-
-		//copy others strings
-		for (size_t k = 0; k < m_flollowersCount; k++)
-		{
-			size_t endSize = lenght + m_pFollowers[k].Size();
-			for (size_t i = lenght, j = 0; i <= endSize; i++, j++)
-			{
-				tempStr[i] = m_pFollowers[k][j];
-				lenght++;
-			}
-		}
-		m_flollowersCount = 0;
-		
-		size_t j = 0;
-		for (size_t i = lenght; i < m_length; ++i)
-		{
-			tempStr[i] = m_chars[j];
-			j++;
-		}
-		delete[] tempStr;
-		m_chars = CMiniStr(tempStr, m_length);
-	}
+	std::unique_ptr<char[]> buffer;
+	buffer.swap(m_chars);
+	m_chars = std::make_unique<char[]>(m_length + str.m_length + 2);
+	memcpy(m_chars.get(), buffer.get(), m_length + 1);
+	memcpy(m_chars.get() + m_length + 1, buffer.get(), str.m_length);
+	m_chars[str.m_length] = '\0';
+	m_length += str.m_length + 1;
 	return *this;
 }
 
@@ -81,14 +51,7 @@ bool operator ==(const CMyString &str1, const CMyString &str2)
 	{
 		return false;
 	}
-	for (size_t i = 0; i < str1.GetLength(); ++i)
-	{
-		if (str1[i] != str2[i])
-		{
-			return false;
-		}
-	}
-	return true;
+	return std::equal<CMyStringIterator<const char>, CMyStringIterator<const char>>(str1.begin(), str1.end(), str2.begin());
 }
 
 bool operator !=(const CMyString &str1, const CMyString &str2)
@@ -98,16 +61,14 @@ bool operator !=(const CMyString &str1, const CMyString &str2)
 
 bool operator <(const CMyString &str1, const CMyString &str2)
 {
-	return (memcmp(str1.GetStringData()
-		, str2.GetStringData()
-		, static_cast<size_t>(fmaxl(static_cast<double>(str1.GetLength()), static_cast<double>(str2.GetLength())))) == -1);
+	auto cmp = memcmp(str1.GetStringData(), str2.GetStringData(), std::min(str1.GetLength(), str2.GetLength()));
+	return (cmp != 0 ? cmp : static_cast<int>(str1.GetLength() - str2.GetLength())) < 0;
 }
 
 bool operator >(const CMyString &str1, const CMyString &str2)
 {
-	return (memcmp(str1.GetStringData()
-		, str2.GetStringData()
-		, static_cast<size_t>(fmaxl(static_cast<double>(str1.GetLength()), static_cast<double>(str2.GetLength())))) == 1);
+	auto cmp = memcmp(str1.GetStringData(), str2.GetStringData(), std::min(str1.GetLength(), str2.GetLength()));
+	return (cmp != 0 ? cmp : static_cast<int>(str1.GetLength() - str2.GetLength())) > 0;
 }
 
 bool operator <=(const CMyString &str1, const CMyString &str2)
@@ -120,55 +81,33 @@ bool operator >=(const CMyString &str1, const CMyString &str2)
 	return ((str1 == str2) || (str1 > str2));
 }
 
-const char & CMyString::operator [](size_t index)const
+char & CMyString::operator [](size_t index)const
 {
-	char empty = '\0';
-	if (m_flollowersCount > 0)
+	if (index < 0 || index > m_length)
 	{
-		Glue();
+		throw std::out_of_range("incorrect index");
 	}
-	return (index >= 0 && index < m_length) ? m_chars[index] : empty;
+	return m_chars[index];
 }
 
 char & CMyString::operator [](size_t index)
 {
 	if (!(index >= 0 && index < m_length))
 	{
-		throw std::invalid_argument("Incorrect index");
-	}
-	if (m_flollowersCount > 0)
-	{
-		Glue();
+		throw std::out_of_range("Incorrect index");
 	}
 	return m_chars[index];
 }
 
 ostream & operator <<(ostream & strm, CMyString const & string)
 {
-
-	for (size_t i = 0; i< string.GetLength(); ++i)
-	{
-#if(0)
-		if (string[i] == '\0')
-		{
-			strm << "\\0";
-		}
-		else
-		{
-			strm << string[i];
-		}
-#else
-		strm << string[i];
-#endif
-	}
-	return strm;
+	return strm.write(string.GetStringData(), string.GetLength());
 }
 
 istream & operator >>(istream & strm, CMyString & string)
 {
-	char tmp[2048];
-	strm.getline(tmp, sizeof(tmp));
-	string = CMyString(tmp);
-
+	std::string tStr;
+	strm >> tStr;
+	string = CMyString(tStr);
 	return strm;
 }
