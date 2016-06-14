@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "../MyArray/MyArray.h"
 #include <stdexcept>
+#include <memory>
+#include <type_traits>
+#include <xstddef>
 
 struct MyStruct
 {
@@ -61,12 +64,56 @@ BOOST_AUTO_TEST_CASE(initializer_list)
 	BOOST_CHECK_EQUAL(arr1.Size(), 3);
 	BOOST_CHECK_EQUAL(arr1[2], 2);
 }
+BOOST_AUTO_TEST_SUITE_END()
+//
+//class CMockItem
+//{
+//public:
+//	CMockItem()
+//	{
+//		ms_registry[this] = true;
+//	}
+//
+//	CMockItem(const CMockItem &other)
+//	{
+//		ms_registry[this] = ms_registry.at(std::addressof(other));
+//	}
+//
+//	CMockItem &operator =(const CMockItem &other)
+//	{
+//		ms_registry[this] = ms_registry.at(std::addressof(other));
+//		return *this;
+//	}
+//
+//	~CMockItem()
+//	{
+//		ms_registry.erase(this);
+//	}
+//
+//	bool IsRegistered()
+//	{
+//		return ms_registry.at(this);;
+//	}
+//
+//private:
+//	static std::map<const CMockItem*, bool> ms_registry;
+//};
+
+struct MyCopyStruct
+{
+	CMyArray<int> arr;
+};
+
+BOOST_FIXTURE_TEST_SUITE(ConstructTests, MyCopyStruct)
 
 BOOST_AUTO_TEST_CASE(copy_constructor)
 {
+	//CMyArray<CMockItem> arr3(arr);
+
 	CMyArray<int> arr1 = { 0, 1, 2 };
 	CMyArray<int> arr2(arr1);
 	BOOST_CHECK_EQUAL(arr1.Size(), arr2.Size());
+
 }
 
 BOOST_AUTO_TEST_CASE(move_constructor)
@@ -82,15 +129,15 @@ BOOST_AUTO_TEST_CASE(move_constructor)
 
 BOOST_AUTO_TEST_CASE(iterator_tests)
 {
-	BOOST_CHECK(true);
 	CMyArray<int> arr = CMyArray<int>({ 0, 1, 2, 3 });
-	size_t i= 0;
-	/*
+
+	size_t i = 0;
 	for (auto it : arr)
 	{
-		it == 0;
+		BOOST_CHECK_EQUAL(it, i);
 		++i;
-	}*/
+	}
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

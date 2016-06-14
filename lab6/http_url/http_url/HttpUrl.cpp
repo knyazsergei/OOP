@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "HttpUrl.h"
 #include <clocale>
-
+#include <iostream>
 
 CHttpUrl::CHttpUrl(const std::string & url)
 {
@@ -44,7 +44,7 @@ CHttpUrl::CHttpUrl(std::string const& domain, std::string const& document, Proto
 	m_domain = domain;
 	m_document = document;
 	m_protocol = protocol;
-	if (ValidatePort(port) && port == static_cast<short int>(protocol))
+	if (ValidatePort(port))
 	{
 		m_port = port;
 	}
@@ -56,9 +56,14 @@ CHttpUrl::CHttpUrl(std::string const& domain, std::string const& document, Proto
 
 std::string CHttpUrl::GetURL() const
 {
+	std::string port = ":" + std::to_string(m_port);
+	if ((m_port == 80 && m_protocol == Protocol::HTTP) || (m_port == 443 && m_protocol == Protocol::HTTPS))
+	{
+		port = "";
+	}
 	return ToStringProtocol() + "://"
 		+ m_domain
-		+ ((m_port == 80 || m_port == 443) ? "" : ":" + std::to_string(m_port))
+		+ port
 		+ m_document;
 }
 
@@ -217,7 +222,7 @@ bool CHttpUrl::ValidateDomainName(const boost::string_ref & domain)
 
 bool CHttpUrl::ValidatePort(const unsigned port)
 {
-	if (port > 0 && port < 49151 && !(m_protocol == HTTP && port != 80 || m_protocol == HTTPS && port != 443))
+	if (port > 0 && port < 49151)
 	{
 		return true;
 	}

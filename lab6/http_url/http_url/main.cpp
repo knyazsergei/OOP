@@ -7,8 +7,8 @@
 
 int main()
 {
-	CHttpUrl url("http://yandex.ru:36");
-	std:: cout << url.GetPort();
+	
+	std::cout << CHttpUrl("https://vk.com:80/index.php").GetURL() << " == " << "http://vk.com:80/index.php" << std::endl;
 	return 0;
 }
 

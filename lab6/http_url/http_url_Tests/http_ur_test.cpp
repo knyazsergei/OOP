@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(throw_with_yandex_incorrect_port)
 }
 BOOST_AUTO_TEST_CASE(no_throw_with_yandex_correct_port)
 {
-	BOOST_REQUIRE_THROW(CHttpUrl("http://yandex.ru:36"), CUrlParsingError);
+	BOOST_REQUIRE_NO_THROW(CHttpUrl("http://yandex.ru:36"));
 }
 BOOST_AUTO_TEST_CASE(parse_habra_OK)
 {
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(throw_with_yandex_empty_domain)
 }
 BOOST_AUTO_TEST_CASE(throw_with_yandex_empty_document)
 {
-	BOOST_REQUIRE_THROW(CHttpUrl url("yandex.ru", "", Protocol::HTTP, 78),CUrlParsingError);
+	BOOST_REQUIRE_NO_THROW(CHttpUrl url("yandex.ru", "", Protocol::HTTP, 78));
 }
 BOOST_AUTO_TEST_CASE(output_url_habra_post)
 {
@@ -109,9 +109,12 @@ BOOST_AUTO_TEST_CASE(output_url_habra_post)
 
 BOOST_AUTO_TEST_CASE(port_Tests)
 {
-	BOOST_CHECK_THROW(CHttpUrl("http://vk.com:443/index.php"), CUrlParsingError);
-	BOOST_CHECK_THROW(CHttpUrl("https://vk.com:80/index.php"), CUrlParsingError);
+	BOOST_CHECK_NO_THROW(CHttpUrl("http://vk.com:443/index.php"));
+	BOOST_CHECK_NO_THROW(CHttpUrl("https://vk.com:80/index.php"));
 	BOOST_CHECK_NO_THROW(CHttpUrl("https://vk.com:443/index.php"));
 	BOOST_CHECK_NO_THROW(CHttpUrl("http://vk.com:80/index.php"));
+	BOOST_CHECK_NO_THROW(CHttpUrl("https://vk.com:443").GetURL());
+	BOOST_CHECK_EQUAL(CHttpUrl("https://vk.com:443/index.php").GetURL(),"https://vk.com/index.php");
+	BOOST_CHECK_EQUAL(CHttpUrl("http://vk.com:80/index.php").GetURL(), "http://vk.com/index.php");
 }
 BOOST_AUTO_TEST_SUITE_END()

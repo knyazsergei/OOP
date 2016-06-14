@@ -74,14 +74,14 @@ BOOST_AUTO_TEST_CASE(find_max_element_in_min)
 {
 	std::vector<int> a = { INT_MIN, INT_MIN, INT_MIN };
 	auto max_value = INT_MIN;
-	BOOST_CHECK(!FindMax<int>(a, max_value, comparator));
+	BOOST_CHECK(FindMax<int>(a, max_value, comparator));
 }
 
 BOOST_AUTO_TEST_CASE(find_max_element_in_min_max)
 {
 	std::vector<int> a = { INT_MIN, INT_MIN, INT_MIN };
 	auto max_value = INT_MAX;
-	BOOST_CHECK(!FindMax<int>(a, max_value, comparator));
+	BOOST_CHECK(FindMax<int>(a, max_value, comparator));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
