@@ -7,12 +7,10 @@
 
 int main()
 {
-	CMyArray<int> arr({ 1, 2, 3 });
-	arr.Resize(10, 5);
-	arr.Resize(5, 0);
-	CMyArray<int> arr2(arr);
-	std:: cerr << arr[7] << std::endl;
-	arr.Clear();
+	CMyArray<int> arr(10, 1);
+	CMyArray<int> arr2({ 1, 2, 3 });
+	std::cerr << arr.GetSize();
+	std::cerr << arr2.GetBack();
 	return 0;
 }
 
