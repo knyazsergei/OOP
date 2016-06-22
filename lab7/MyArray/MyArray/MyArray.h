@@ -5,6 +5,7 @@
 #include <iterator>
 #include <initializer_list>
 #include "MyIterator.h"
+#include <string>
 
 
 template <typename T>
@@ -21,9 +22,8 @@ public:
 			m_begin = RawAlloc(size);
 			try
 			{
-				m_end = m_begin;
 				auto begin = values.begin();
-				for (; begin < values.end();m_end++, begin++)
+				for (m_end = m_begin; begin < values.end();m_end++, begin++)
 				{
 					new (m_end)T(*begin);
 				}
@@ -68,7 +68,7 @@ public:
 			
 		m_begin = RawAlloc(size);
 		m_end = m_begin;
-		m_end += sizeof(T) * size;
+		m_end += size;
 		try
 		{
 			for (m_endOfCapacity = m_begin; m_endOfCapacity < m_end; ++m_endOfCapacity)
@@ -147,7 +147,7 @@ public:
 	{
 		if (index > GetSize())
 		{
-			throw std::out_of_range();
+			throw std::out_of_range("invalid index");
 		}
 		return m_begin[index];
 	}
@@ -155,15 +155,16 @@ public:
 	{
 		if (index > GetSize())
 		{
-			throw std::out_of_range();
+			throw std::out_of_range("invalid index");
 		}
-		return m_begin[index]
+		return m_begin[index];
 	}
 
 	void Clear()
 	{
 		DeleteItems(m_begin, m_end);
-		m_end = m_begin
+		m_end = m_begin;
+		m_endOfCapacity = m_begin;
 	}
 
 	CMyIterator<T> begin()
@@ -186,52 +187,143 @@ public:
 
 	CMyArray<T> & operator=(const CMyArray<T> & arr)
 	{
-		CMyArray(arr);
+		const auto size = arr.GetSize();
+		if (size != 0)
+		{
+			m_begin = RawAlloc(size);
+			try
+			{
+				CopyItems(arr.m_begin, arr.m_end, m_begin, m_end);
+				m_endOfCapacity = m_end;
+			}
+			catch (...)
+			{
+				DeleteItems(m_begin, m_end);
+				throw;
+			}
+		}
+		return *this;
 	}
+
 	CMyArray<T> & operator=(std::initializer_list<T> values)
 	{
-		CMyArray(values);
+		Clear();
+		const auto size = values.size();
+		if (size != 0)
+		{
+			m_begin = RawAlloc(size);
+			try
+			{
+				auto begin = values.begin();
+				for (m_end = m_begin; begin < values.end(); m_end++, begin++)
+				{
+					new (m_end)T(*begin);
+				}
+				m_endOfCapacity = m_end;
+			}
+			catch (...)
+			{
+				DeleteItems(m_begin, m_end);
+				throw;
+			}
+		}
+		return *this;
 	}
+
 	CMyArray<T> & operator=(const CMyArray<T> && arr)
 	{
 		Clear();
-		CMyArray(arr);
+		m_begin = arr.m_begin;
+		m_end = arr.m_end;
+		m_endOfCapacity = arr.m_endOfCapacity;
+		return *this;
 	}
-	/*CMyArray(const CMyArray<T> & arr);*
-	CMyArray(size_t size, T item);*
-	CMyArray(std::initializer_list<T> values);*
-	CMyArray(CMyArray<T> && arr);*
 
-	void PushBack(const T & item);
-	size_t Size()const;
-	T & operator [](size_t index);
-	const T & operator [](size_t index)const;
-	void Resize(size_t size);
-	void Resize(size_t size, const T & item);
-	void Clear();
+	//type cast 
+	template < typename NewTypeT >
+	operator CMyArray< NewTypeT >()
+	{
+		CMyArray< NewTypeT > result;
+		result.Resize<NewTypeT>(GetSize());
+		try
+		{
+			auto current = m_begin;
+			for (size_t i = 0; current < m_end; current++, i++)
+			{
+				result[i] = static_cast<NewTypeT>(*current);
+			}
+		}
+		catch (...)
+		{
+			result.Clear();
+			throw;
+		}
+		return result;
+	}
 
-	CMyIterator<T> begin();
-	CMyIterator<T> end();
+	template< typename NewTypeT >
+	CMyArray(const CMyArray< NewTypeT > & values)
+	{
+		auto m_newBegin = RawAlloc(values.GetSize());
+		auto currentInNew = m_newBegin;
+		try
+		{
+			for (size_t i = 0; i < values.GetSize(); ++i, ++currentInNew)
+			{
+				new (currentInNew)T(static_cast<NewTypeT>(values[i]));
+			}
+			Clear();
+			m_begin = m_newBegin;
+			m_end = currentInNew;
+			m_endOfCapacity = currentInNew;
+		}
+		catch (...)
+		{
+			DeleteItems(m_newBegin, currentInNew);
+			throw;
+		}
+	}
 
-	CMyIterator<const T> begin() const;
-	CMyIterator<const T> end() const;
-
-	CMyArray<T> & operator=(const CMyArray<T> & arr);
-	CMyArray<T> & operator=(std::initializer_list<T> values);
-*/
+	template < typename NewTypeT >
+	CMyArray & operator=(const CMyArray< NewTypeT > & values)
+	{
+		auto m_newBegin = RawAlloc(values.GetSize());
+		auto currentInNew = m_newBegin;
+		try
+		{
+			for (size_t i = 0; i < values.GetSize(); ++i, ++currentInNew)
+			{
+				new (currentInNew)T(static_cast<NewTypeT>(values[i]));
+			}
+			Clear();
+			m_begin = m_newBegin;
+			m_end = currentInNew;
+			m_endOfCapacity = currentInNew;
+		}
+		catch (...)
+		{
+			DeleteItems(m_newBegin, m_newBegin);
+			throw;
+		}
+		return *this;
+	}
+	
 
 	T & GetBack()
 	{
-		if (GetSize() != 0u)
+		if (GetSize() == 0u)
 		{
-			throw std::out_of_range("The array is empty");
+			throw std::out_of_range("The array is empty (" + std::to_string(GetSize()) + ")");
 		}
 		return m_end[-1];
 	}
 
 	const T & GetBack()const
 	{
-		assert(GetSize() != 0u);
+		if (GetSize() == 0u)
+		{
+			throw std::out_of_range("The array is empty (" + std::to_string(GetSize()) + ")");
+		}
 		return m_end[-1];
 	}
 
@@ -283,24 +375,25 @@ private:
 	static T *RawAlloc(size_t n)
 	{
 		size_t memSize = n * sizeof(T);
-		T *p = static_cast<T*>(malloc(memSize));
-		if (!p)
+		T  * p = new T[n];
+		//T *p = static_cast<T*>(malloc(memSize));
+		/*if (!p)
 		{
 			throw std::bad_alloc();
-		}
+		}*/
 		return p;
 	}
 
 	static void RawDealloc(T *p)
 	{
-		free(p);
+		delete[] p;
+		
 	}
 
 	T *m_begin = nullptr;
 	T *m_end = nullptr;
 	T *m_endOfCapacity = nullptr;
 };
-
 
 
 
