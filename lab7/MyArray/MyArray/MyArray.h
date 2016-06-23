@@ -89,12 +89,11 @@ public:
 		}
 		try
 		{
-			new (++m_endOfCapacity)T(item);
+			new (++m_end)T(item);
 		}
 		catch (...)
 		{
-			m_endOfCapacity--;
-			//delete m_endOfCapacity--;
+			m_end--;
 		}
 	}
 
@@ -104,7 +103,7 @@ public:
 		{
 			if (GetCapacity() > size)
 			{
-				T * end = m_end + size * T;
+				T * end = m_end + size;
 				try
 				{
 					T * begin = m_end;
@@ -126,8 +125,8 @@ public:
 				CopyItems(m_begin, m_end, begin, end);
 				DeleteItems(m_begin, m_end);
 				m_begin = begin;
-				m_endOfCapacity = end;
 				m_end = end;
+				m_endOfCapacity = begin + size;
 			}
 
 		}
@@ -364,7 +363,7 @@ private:
 		{
 			--to;
 			// €вно вызываем деструктор дл€ шаблонного типа T
-			to->~T();
+			//to->~T();
 		}
 	}
 
@@ -376,7 +375,7 @@ private:
 
 	static void RawDealloc(T *p)
 	{
-		delete[] p;
+		delete [] p;
 	}
 
 	T *m_begin = nullptr;

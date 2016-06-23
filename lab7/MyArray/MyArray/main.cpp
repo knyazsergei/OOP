@@ -10,10 +10,14 @@
 
 int main()
 {
+	CMyArray<int> arr;
+	arr.PushBack(1);
+	std::cout << arr.GetSize() << '=' << 1 << std::endl;
+
 	CMyArray<float> arr1({ 1.0f, 2.0f, 3.0f });
 	CMyArray<int> arr2({ 1, 2, 3 });
-	
 	CMyArray<int> newArr1(arr1);
+
 	auto newArr2 = static_cast<CMyArray<float>>(arr2);
 	CMyArray<float> newArr3;
 	newArr3 = arr2;
