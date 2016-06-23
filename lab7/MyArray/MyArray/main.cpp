@@ -10,8 +10,7 @@
 
 int main()
 {
-	CMyArray<int> arr;
-	arr.PushBack(1);
+	/*arr.PushBack(1);
 	std::cout << arr.GetSize() << '=' << 1 << std::endl;
 
 	CMyArray<float> arr1({ 1.0f, 2.0f, 3.0f });
@@ -45,7 +44,26 @@ int main()
 	}
 
 	std::cout << "\n\ncopy to ostream: \n";
-	std::copy(arr1.begin(), arr1.end(), std::ostream_iterator<float>(std::cout, " "));
+	std::copy(arr1.begin(), arr1.end(), std::ostream_iterator<float>(std::cout, " "));*/
+	struct ArrayItem
+	{
+		ArrayItem(int value = 0) : value(value)
+		{}
+		int value;
+	};
+
+	CMyArray<ArrayItem> arr;
+	arr.PushBack(ArrayItem());
+
+	arr.PushBack(ArrayItem());
+
+	arr.PushBack(ArrayItem());
+
+	arr.PushBack(ArrayItem());
+
+	arr.PushBack(ArrayItem());
+
+	arr.PushBack(ArrayItem());
 	return 0;
 }
 
