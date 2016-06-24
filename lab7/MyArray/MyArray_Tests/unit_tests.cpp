@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "../MyArray/MyArray.h"
 #include <stdexcept>
+#include <map>
 #include <memory>
 #include <type_traits>
 #include <xstddef>
@@ -82,6 +83,107 @@ BOOST_AUTO_TEST_CASE(has_size_capacity_equal_to_size_of_original_array)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(after_moving_constructor)
+BOOST_AUTO_TEST_CASE(has_size_capacity_equal_to_size_of_original_array)
+{
+	for (auto i = 0; i < 6; ++i)
+	{
+		arr.PushBack(i);
+	}
+	auto arr1 = arr;
+	BOOST_CHECK_EQUAL(arr1.GetSize(), arr.GetSize());
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_CASE(initialization_lists)
+{
+	CMyArray<int> arr1({ 0, 1, 2, 3, 4, 5 });
+	BOOST_CHECK_EQUAL(arr1.GetSize(), 6);
+	BOOST_CHECK_EQUAL(arr1.GetBack(), 5);
+	arr1.PushBack(6);
+	BOOST_CHECK_EQUAL(arr1.GetSize(), 7);
+	BOOST_CHECK_EQUAL(arr1.GetBack(), 6);
+}
+
+BOOST_AUTO_TEST_CASE(moving_constructor)
+{
+	CMyArray<int> arr1(CMyArray<int>({ 0, 1, 2 }));
+	bool result = true;
+	for (size_t i = 0; i < arr1.GetSize(); ++i)
+	{
+		if (!arr1[i] == i)
+		{
+			result = !result;
+		}
+	}
+	BOOST_CHECK(result);
+}
+
+
+BOOST_AUTO_TEST_CASE(the_initial_value_of_constructor)
+{
+	CMyArray<int> arr1(10, 5);
+	bool result = true;
+	for (size_t i = 0; i < arr1.GetSize(); ++i)
+	{
+		if (!(arr1[i] == 5))
+		{
+			result = !result;
+		}
+	}
+	BOOST_CHECK(result);
+}
+
+BOOST_AUTO_TEST_CASE(resize)
+{
+	arr.Resize(10);
+	BOOST_CHECK_EQUAL(arr.GetSize(), 10u);
+	BOOST_CHECK_EQUAL(arr.GetBack().value, 0);
+	arr.Resize(2);
+	arr.PushBack(3);
+	BOOST_CHECK_EQUAL(arr.GetSize(), 3u);
+	BOOST_CHECK_EQUAL(arr.GetBack().value, 3);
+}
+
+
+BOOST_AUTO_TEST_CASE(brackets)
+{
+	CMyArray<int> arr1({ 0, 1, 2, 3 });
+	bool result = true;
+	for (size_t i = 0; i < arr1.GetSize(); ++i)
+	{
+		if (!arr1[i] == i)
+		{
+			result = !result;
+		}
+	}
+	BOOST_CHECK(result);
+	arr1[3] = 10;
+	BOOST_CHECK_EQUAL(arr1[3], 10);
+}
+
+BOOST_AUTO_TEST_CASE(Iterator)
+{
+	CMyArray<int> arr1({ 0, 1, 2, 3 });
+	int i = 0;
+	bool result = true;
+	for (auto it : arr1)
+	{
+		if (!it == i)
+		{
+			result = !result;
+		}
+		++i;
+	}
+	BOOST_CHECK(result);
+
+
+	//TODO: make copy
+	//CMyArray<int> arr2;
+	//std::copy(arr1.begin(), arr1.end(), arr2.begin());
+}
 BOOST_AUTO_TEST_SUITE_END()
 
 struct MyStruct
@@ -93,130 +195,133 @@ BOOST_FIXTURE_TEST_SUITE(Array_tests, MyStruct)
 
 BOOST_AUTO_TEST_CASE(push_item_widthout_exception)
 {
-	BOOST_CHECK_NO_THROW(arr.GetBack());
+	BOOST_CHECK_THROW(arr.GetBack(), std::out_of_range);
 }
-//
-//BOOST_AUTO_TEST_CASE(get_size_tests)
-//{
-//	BOOST_CHECK_EQUAL(arr.Size(), 0);
-//	arr.PushBack(0);
-//	BOOST_CHECK_EQUAL(arr.Size(), 1);
-//	arr.PushBack(0);
-//	BOOST_CHECK_EQUAL(arr.Size(), 2);
-//	arr.PushBack(0);
-//	BOOST_CHECK_EQUAL(arr.Size(), 3);
-//}
-//
-//BOOST_AUTO_TEST_CASE(get_item_by_index)
-//{
-//	arr.PushBack(213);
-//	arr.PushBack(312);
-//	arr.PushBack(123);
-//	BOOST_CHECK_EQUAL(arr[0], 213);
-//	BOOST_CHECK_EQUAL(arr[1], 312);
-//	BOOST_CHECK_EQUAL(arr[2], 123);
-//	BOOST_CHECK_THROW(arr[3], std::out_of_range);
-//}
-//
-//BOOST_AUTO_TEST_CASE(resize_array_width_start_item)
-//{
-//	arr.Resize(10, 5);
-//	BOOST_CHECK_EQUAL(arr.Size(), 10);
-//	BOOST_CHECK_EQUAL(arr[0], 5);
-//	BOOST_CHECK_EQUAL(arr[9], 5);
-//	arr.Resize(2, 5);
-//	BOOST_CHECK_EQUAL(arr.Size(), 2);
-//	BOOST_CHECK_EQUAL(arr[1], 5);
-//}
-//
-//BOOST_AUTO_TEST_CASE(clear_array)
-//{
-//	arr.Resize(10, 0);
-//	arr.Clear();
-//	BOOST_CHECK_EQUAL(arr.Size(), 0);
-//	BOOST_CHECK_THROW(arr[0], std::out_of_range);
-//}
-//
-//BOOST_AUTO_TEST_CASE(initializer_list)
-//{
-//	CMyArray<int> arr1 = { 0, 1, 2 };
-//	BOOST_CHECK_EQUAL(arr1.Size(), 3);
-//	BOOST_CHECK_EQUAL(arr1[2], 2);
-//}
-//BOOST_AUTO_TEST_SUITE_END()
-////
-////class CMockItem
-////{
-////public:
-////	CMockItem()
-////	{
-////		ms_registry[this] = true;
-////	}
-////
-////	CMockItem(const CMockItem &other)
-////	{
-////		ms_registry[this] = ms_registry.at(std::addressof(other));
-////	}
-////
-////	CMockItem &operator =(const CMockItem &other)
-////	{
-////		ms_registry[this] = ms_registry.at(std::addressof(other));
-////		return *this;
-////	}
-////
-////	~CMockItem()
-////	{
-////		ms_registry.erase(this);
-////	}
-////
-////	bool IsRegistered()
-////	{
-////		return ms_registry.at(this);;
-////	}
-////
-////private:
-////	static std::map<const CMockItem*, bool> ms_registry;
-////};
-//
-//struct MyCopyStruct
-//{
-//	CMyArray<int> arr;
-//};
-//
-//BOOST_FIXTURE_TEST_SUITE(ConstructTests, MyCopyStruct)
-//
-//BOOST_AUTO_TEST_CASE(copy_constructor)
-//{
-//	//CMyArray<CMockItem> arr3(arr);
-//
-//	CMyArray<int> arr1 = { 0, 1, 2 };
-//	CMyArray<int> arr2(arr1);
-//	BOOST_CHECK_EQUAL(arr1.Size(), arr2.Size());
-//
-//}
-//
-//BOOST_AUTO_TEST_CASE(move_constructor)
-//{
-//	CMyArray<int> arr1(CMyArray<int>({0, 1, 2, 3}));
-//	BOOST_CHECK_EQUAL(arr1.Size(), 4);
-//
-//	CMyArray<int> arr2(CMyArray<int>(5, 123));
-//	BOOST_CHECK_EQUAL(arr2.Size(), 5);
-//	BOOST_CHECK_EQUAL(arr2[0], 123);
-//	BOOST_CHECK_EQUAL(arr2[4], 123);
-//}
-//
-//BOOST_AUTO_TEST_CASE(iterator_tests)
-//{
-//	CMyArray<int> arr = CMyArray<int>({ 0, 1, 2, 3 });
-//
-//	size_t i = 0;
-//	for (auto it : arr)
-//	{
-//		BOOST_CHECK_EQUAL(it, i);
-//		++i;
-//	}
-//
-//}
 
+BOOST_AUTO_TEST_CASE(get_size_tests)
+{
+	BOOST_CHECK_EQUAL(arr.GetSize(), 0);
+	arr.PushBack(0);
+	BOOST_CHECK_EQUAL(arr.GetSize(), 1);
+	arr.PushBack(0);
+	BOOST_CHECK_EQUAL(arr.GetSize(), 2);
+	arr.PushBack(0);
+	BOOST_CHECK_EQUAL(arr.GetSize(), 3);
+}
+
+BOOST_AUTO_TEST_CASE(get_item_by_index)
+{
+	arr.PushBack(213);
+	arr.PushBack(312);
+	arr.PushBack(123);
+	BOOST_CHECK_EQUAL(arr[0], 213);
+	BOOST_CHECK_EQUAL(arr[1], 312);
+	BOOST_CHECK_EQUAL(arr[2], 123);
+	BOOST_CHECK_THROW(arr[3], std::out_of_range);
+}
+
+BOOST_AUTO_TEST_CASE(resize_array_width_start_item)
+{
+	CMyArray<ArrayItem> arr1;
+	arr1.Resize(10);
+	BOOST_CHECK_EQUAL(arr1.GetSize(), 10);
+	BOOST_CHECK_EQUAL(arr1[0].value, 0);
+	BOOST_CHECK_EQUAL(arr1[9].value, 0);
+	arr1.Resize(2);
+	BOOST_CHECK_EQUAL(arr1.GetSize(), 2);
+	BOOST_CHECK_EQUAL(arr1[1].value, 0);
+}
+
+BOOST_AUTO_TEST_CASE(clear_array)
+{
+	CMyArray<ArrayItem> arr1;
+	arr1.Resize(10);
+	arr1.Clear();
+	BOOST_CHECK_EQUAL(arr1.GetSize(), 0);
+	BOOST_CHECK_THROW(arr1[0].value, std::out_of_range);
+}
+
+BOOST_AUTO_TEST_CASE(initializer_list)
+{
+	CMyArray<int> arr1 = { 0, 1, 2 };
+	BOOST_CHECK_EQUAL(arr1.GetSize(), 3);
+	BOOST_CHECK_EQUAL(arr1[2], 2);
+}
+BOOST_AUTO_TEST_SUITE_END()
+
+
+class CMockItem
+{
+public:
+	CMockItem()
+	{
+		ms_registry[this] = true;
+	}
+
+	CMockItem(const CMockItem &other)
+	{
+		ms_registry[this] = ms_registry.at(std::addressof(other));
+	}
+
+	CMockItem &operator =(const CMockItem &other)
+	{
+		ms_registry[this] = ms_registry.at(std::addressof(other));
+		return *this;
+	}
+
+	~CMockItem()
+	{
+		ms_registry.erase(this);
+	}
+
+	bool IsRegistered()
+	{
+		return ms_registry.at(this);;
+	}
+
+private:
+	static std::map<const CMockItem*, bool> ms_registry;
+};
+
+struct MyCopyStruct
+{
+	int value;
+	//CMyArray<CMockItem> arr;
+};
+
+BOOST_FIXTURE_TEST_SUITE(ConstructTests, MyCopyStruct)
+
+BOOST_AUTO_TEST_CASE(copy_constructor)
+{
+	//arr.PushBack(CMockItem());
+	//CMyArray<CMockItem> arr3(arr);
+
+	//BOOST_CHECK_EQUAL(arr3.GetSize(), arr.GetSize());
+	//BOOST_CHECK_EQUAL(arr3.GetBack().IsRegistered(), arr.GetBack().IsRegistered());
+
+}
+
+BOOST_AUTO_TEST_CASE(move_constructor)
+{
+	CMyArray<int> arr1(CMyArray<int>({0, 1, 2, 3}));
+	BOOST_CHECK_EQUAL(arr1.GetSize(), 4);
+
+	CMyArray<int> arr2(CMyArray<int>(5, 123));
+	BOOST_CHECK_EQUAL(arr2.GetSize(), 5);
+	BOOST_CHECK_EQUAL(arr2[0], 123);
+	BOOST_CHECK_EQUAL(arr2[4], 123);
+}
+
+BOOST_AUTO_TEST_CASE(iterator_tests)
+{
+	CMyArray<int> arr1 = CMyArray<int>({ 0, 1, 2, 3 });
+
+	size_t i = 0;
+	for (auto it : arr1)
+	{
+		BOOST_CHECK_EQUAL(it, i);
+		++i;
+	}
+
+}
 BOOST_AUTO_TEST_SUITE_END()

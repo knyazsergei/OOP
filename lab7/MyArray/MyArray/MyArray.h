@@ -4,8 +4,8 @@
 #include <iostream>
 #include <iterator>
 #include <initializer_list>
-#include "MyIterator.h"
 #include <string>
+#include "MyIterator.h"
 
 
 template <typename T>
@@ -14,178 +14,177 @@ class CMyArray
 public:
 	CMyArray()
 	{
-		m_begin = static_cast<T*>(::operator new(MINIMUM_CAPACITY));// * sizeof(T)
-		m_end = m_begin;
-		m_endOfCapacity = m_begin + MINIMUM_CAPACITY;
+		ResizeCapcity();
 		m_size = 0;
 	}
 
-	//CMyArray(std::initializer_list<T> values)
-	//{
-	//	const auto size = values.size();
-	//	if (size != 0)
-	//	{
-	//		m_begin = RawAlloc(size);
-	//		try
-	//		{
-	//			auto begin = values.begin();
-	//			for (m_end = m_begin; begin < values.end();m_end++, begin++)
-	//			{
-	//				new (m_end)T(*begin);
-	//			}
-	//			m_endOfCapacity = m_end;
-	//		}
-	//		catch (...)
-	//		{
-	//			DeleteItems(m_begin, m_end);
-	//			throw;
-	//		}
-	//	}
-	//}
+	CMyArray(std::initializer_list<T> values)
+	{
+		const auto size = values.size();
+		if (size != 0)
+		{
+			auto begin = RawAlloc(size);
+			auto end = begin;
+			try
+			{
+				auto v_begin = values.begin();
+				for (; v_begin < values.end(); end++, v_begin++)
+				{
+					new (end)T(*v_begin);
+				}
+				m_begin = begin;
+				m_end = end;
+				m_endOfCapacity = m_begin + size - 1;;
+			}
+			catch (...)
+			{
+				DestroyItems(begin, end);
+				throw;
+			}
+		}
+	}
 
-	//CMyArray(const CMyArray& arr)
-	//{
-	//	const auto size = arr.GetSize();
-	//	if (size != 0)
-	//	{
-	//		m_begin = RawAlloc(size);
-	//		try
-	//		{
-	//			CopyItems(arr.m_begin, arr.m_end, m_begin, m_end);
-	//			m_endOfCapacity = m_end;
-	//		}
-	//		catch (...)
-	//		{
-	//			DeleteItems(m_begin, m_end);
-	//			throw;
-	//		}
-	//	}
-	//}
+	CMyArray(const CMyArray& arr)
+	{
+		const auto size = arr.GetSize();
+		if (size != 0)
+		{
+			m_begin = RawAlloc(size);
+			m_end = m_begin;
+			try
+			{
+				CopyItems(arr.m_begin, arr.m_end, m_end);
+				m_endOfCapacity = m_end;
+			}
+			catch (...)
+			{
+				DestroyItems(m_begin, m_end);
+				throw;
+			}
+		}
+	}
 
-	//CMyArray(const CMyArray&& arr):
-	//	m_begin(arr.m_begin),
-	//	m_end(arr.m_end),
-	//	m_endOfCapacity(arr.m_endOfCapacity)
-	//{
-	//}
+	CMyArray(const CMyArray&& arr):
+		m_begin(arr.m_begin),
+		m_end(arr.m_end),
+		m_endOfCapacity(arr.m_endOfCapacity)
+	{
+	}
 
-	//CMyArray(size_t size, T item)
-	//{
-	//	m_begin = RawAlloc(size);
-	//	m_end = m_begin + size;
-	//	try
-	//	{
-	//		for (m_endOfCapacity = m_begin; m_endOfCapacity < m_end; ++m_endOfCapacity)
-	//		{
-	//			new (m_endOfCapacity)T(item);
-	//		}
-	//	}
-	//	catch (...)
-	//	{
-	//		DeleteItems(m_begin, m_end);
-	//		throw;
-	//	}
-	//}
+	CMyArray(size_t size, T item)
+	{
+		Resize(size);
+		auto end = m_begin;
+		try
+		{
+			
+			for (; end != m_end; ++end)
+			{
+				new (end)T(item);
+			}
+		}
+		catch (...)
+		{
+			DestroyItems(m_begin, end);
+			m_end = m_begin;
+			throw;
+		}
+	}
 
 	void PushBack(const T & item)
 	{
-		if(m_endOfCapacity == m_end)
+		if(m_begin == m_end && GetCapacity() <= MINIMUM_CAPACITY)
 		{
-			
+			ResizeCapcity(GetCapacity() + 1);
 		}
 		try
 		{
-			new (++m_end)T(item);
-			m_size++;
+			new (m_end++)T(item);
 		}
 		catch (...)
 		{
 			m_end--;
+			throw;
 		}
 	}
 
-	//void Resize(size_t size)
-	//{
-	//	if (GetSize() < size)
-	//	{
-	//		if (GetCapacity() > size)
-	//		{
-	//			T * end = m_end + size;
-	//			try
-	//			{
-	//				T * begin = m_end;
-	//				for (++begin; begin < end; ++begin)
-	//				{
-	//					begin = new T;
-	//				}
-	//			}
-	//			catch (...)
-	//			{
-	//				T * begin = m_end;
-	//				DeleteItems(begin, end);
-	//			}
-	//		}
-	//		else if (GetCapacity() < size)
-	//		{
-	//			T * begin = RawAlloc(size);
-	//			T * end;
-	//			CopyItems(m_begin, m_end, begin, end);
-	//			DeleteItems(m_begin, m_end);
-	//			m_begin = begin;
-	//			m_end = end;
-	//			m_endOfCapacity = begin + size;
-	//		}
+	void Resize(size_t size)
+	{
+		auto end = m_end;
+		if (GetSize() < size)
+		{
+			if (GetCapacity() > size)
+			{
+				m_end += size - GetSize();
+			}
+			else if (GetCapacity() < size)
+			{
+				ResizeCapcity(size);
+			}
+			try
+			{
+				end = m_end;
+				m_end = m_begin + size;
+				for (; end != m_end; end++)
+				{
+					new (end)T();
+				}
+			}
+			catch(...)
+			{
+				throw;
+			}
+		}
+		else if (GetSize() > size)
+		{
+			m_end -= GetSize() - size;
+			DestroyItems(m_end, end);
+		}
+	}
 
-	//	}
-	//	else if (GetSize() > size)
-	//	{
-	//		T * end = m_end;
-	//		m_end -= size - GetSize();
-	//		DeleteItems(m_end, end);
-	//	}
-	//}
+	T & operator [](size_t index)
+	{
+		if (index >= GetSize())
+		{
+			throw std::out_of_range("invalid index");
+		}
+		return m_begin[index];
+	}
+	const T & operator [](size_t index)const
+	{
+		if (index >= GetSize())
+		{
+			throw std::out_of_range("invalid index");
+		}
+		return m_begin[index];
+	}
 
-	//T & operator [](size_t index)
-	//{
-	//	if (index > GetSize())
-	//	{
-	//		throw std::out_of_range("invalid index");
-	//	}
-	//	return m_begin[index];
-	//}
-	//const T & operator [](size_t index)const
-	//{
-	//	if (index > GetSize())
-	//	{
-	//		throw std::out_of_range("invalid index");
-	//	}
-	//	return m_begin[index];
-	//}
+	void Clear()
+	{
+		DestroyItems(m_begin, m_end);
+		ResizeCapcity();
+		m_end = m_begin;
+	}
 
-	//void Clear()
-	//{
-	//	DeleteItems(m_begin, m_end);
-	//	m_end = m_begin;
-	//	m_endOfCapacity = m_begin;
-	//}
 
-	//CMyIterator<T> begin()
-	//{
-	//	return m_begin;
-	//}
-	//CMyIterator<T> end()
-	//{
-	//	return m_end;
-	//}
+	//Работа с итератором 
+	CMyIterator<T> begin()
+	{
+		return m_begin;
+	}
+	CMyIterator<T> end()
+	{
+		return m_end;
+	}
 
-	//CMyIterator<const T> begin() const
-	//{
-	//	return m_begin;
-	//}
-	//CMyIterator<const T> end() const
-	//{
-	//	return m_end;
-	//}
+	CMyIterator<const T> begin() const
+	{
+		return m_begin;
+	}
+	CMyIterator<const T> end() const
+	{
+		return m_end;
+	}
 
 	//CMyArray<T> & operator=(const CMyArray<T> & arr)
 	//{
@@ -331,7 +330,7 @@ public:
 
 	size_t GetSize()const
 	{
-		return m_size;//m_end - m_begin;
+		return m_end - m_begin;
 	}
 
 	~CMyArray()
@@ -340,6 +339,31 @@ public:
 		RawDealloc();
 	}
 private:
+	void ResizeCapcity(size_t size = MINIMUM_CAPACITY)
+	{
+		if (GetCapacity() < size)
+		{
+			T * begin = RawAlloc(size);
+			T * end = begin;
+			try {
+				//Копируем старые элементы
+				CopyItems(m_begin, m_end, end);
+				//удаляем старые элементы
+				DestroyItems(m_begin, m_end);
+				RawDealloc();
+			}
+			catch (...)
+			{
+				throw;
+			}
+			//Присваиваем новые значения
+
+			m_begin = begin;
+			m_end = end;
+			m_endOfCapacity = m_begin + size;
+		}
+	}
+
 	size_t GetCapacity()const
 	{
 		return m_endOfCapacity - m_begin;
@@ -364,13 +388,13 @@ private:
 
 	T * RawAlloc(size_t n)
 	{
-		T  * p = ::operator new(n * sizeof(T));
-		return p;
+		n++;
+		return static_cast<T*>(::operator new(n * sizeof(T)));
 	}
 
 	void RawDealloc()
 	{
-		::operator delete(m_begin, sizeof(T) * (m_endOfCapacity - m_begin));
+		::operator delete((void*)m_begin);// , sizeof(T) * GetCapacity());
 	}
 
 	static const unsigned MINIMUM_CAPACITY = 5;

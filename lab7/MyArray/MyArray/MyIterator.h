@@ -73,20 +73,37 @@ CMyIterator<T> CMyIterator<T>::operator-(const CMyIterator<const T> & second) co
 	return result;
 }
 
+//prefix
+template<typename T>
+CMyIterator<T> &CMyIterator<T>::operator++()
+{
+	++p;
+	return *this;
+}
+
+
+template<typename T>
+CMyIterator<T>& CMyIterator<T>::operator--()
+{
+	--p;
+	return *this;
+}
+
+//posfix
 template<typename T>
 CMyIterator<T> & CMyIterator<T>::operator--(int)
 {
-	CMyIterator t(*this);
+	std::shared_ptr<CMyIterator> t(*this);
 	--(*this);
-	return t;
+	return *t;
 }
 
 template<typename T>
 CMyIterator<T> & CMyIterator<T>::operator++(int)
 {
-	CMyIterator t(*this);
+	std::shared_ptr<CMyIterator> t(*this);
 	++(*this);
-	return t;
+	return *t;
 }
 
 template<typename T>
@@ -120,19 +137,3 @@ typename CMyIterator<T>::reference CMyIterator<T>::operator*() const
 {
 	return *p;
 }
-
-template<typename T>
-CMyIterator<T> &CMyIterator<T>::operator++()
-{
-	++p;
-	return *this;
-}
-
-
-template<typename T>
-CMyIterator<T>& CMyIterator<T>::operator--()
-{
-	--p;
-	return *this;
-}
-

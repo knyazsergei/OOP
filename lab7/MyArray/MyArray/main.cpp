@@ -1,5 +1,5 @@
-// MyArray.cpp: определяет точку входа для консольного приложения.
-//
+ //MyArray.cpp: определяет точку входа для консольного приложения.
+
 
 #include "stdafx.h"
 #include "MyArray.h"
@@ -45,25 +45,6 @@ int main()
 
 	std::cout << "\n\ncopy to ostream: \n";
 	std::copy(arr1.begin(), arr1.end(), std::ostream_iterator<float>(std::cout, " "));*/
-	struct ArrayItem
-	{
-		ArrayItem(int value = 0) : value(value)
-		{}
-		int value;
-	};
-
-	CMyArray<ArrayItem> arr;
-	arr.PushBack(ArrayItem());
-
-	arr.PushBack(ArrayItem());
-
-	arr.PushBack(ArrayItem());
-
-	arr.PushBack(ArrayItem());
-
-	arr.PushBack(ArrayItem());
-
-	arr.PushBack(ArrayItem());
 	return 0;
 }
 
