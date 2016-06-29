@@ -45,6 +45,11 @@ int main()
 
 	std::cout << "\n\ncopy to ostream: \n";
 	std::copy(arr1.begin(), arr1.end(), std::ostream_iterator<float>(std::cout, " "));*/
+
+	CMyArray<int> arr1;
+	arr1.Resize(10);
+	arr1.Clear();
+	arr1.GetSize();
 	return 0;
 }
 

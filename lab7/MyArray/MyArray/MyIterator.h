@@ -22,8 +22,8 @@ public:
 	CMyIterator& operator++();//prefix
 	CMyIterator& operator--();
 
-	CMyIterator& operator++(int);//postfix
-	CMyIterator& operator--(int);
+	CMyIterator operator++(int);//postfix
+	CMyIterator operator--(int);
 
 	CMyIterator operator+=(const CMyIterator<const T> & second);
 	CMyIterator operator-=(const CMyIterator<const T> & second);
@@ -36,6 +36,22 @@ public:
 	
 	T* p;
 };
+
+template<typename T>
+CMyIterator<T> operator+(const CMyIterator<T> & first, const CMyIterator<T> & second)
+{
+	CMyIterator<T> result(first);
+	result.p = first.p + second.p * sizeof(T);
+	return result;
+}
+
+template<typename T>
+CMyIterator<T> operator-(const CMyIterator<T> & first, const CMyIterator<T> & second)
+{
+	CMyIterator<T> result(first);
+	result.p = first.p - second.p * sizeof(T);
+	return result;
+}
 
 template<typename T>
 CMyIterator<T> CMyIterator<T>::operator-=(const CMyIterator<const T> & second)
@@ -91,19 +107,19 @@ CMyIterator<T>& CMyIterator<T>::operator--()
 
 //posfix
 template<typename T>
-CMyIterator<T> & CMyIterator<T>::operator--(int)
+CMyIterator<T> CMyIterator<T>::operator--(int)
 {
-	std::shared_ptr<CMyIterator> t(*this);
+	CMyIterator t(*this);
 	--(*this);
-	return *t;
+	return t;
 }
 
 template<typename T>
-CMyIterator<T> & CMyIterator<T>::operator++(int)
+CMyIterator<T> CMyIterator<T>::operator++(int)
 {
-	std::shared_ptr<CMyIterator> t(*this);
+	CMyIterator t(*this);
 	++(*this);
-	return *t;
+	return t;
 }
 
 template<typename T>
