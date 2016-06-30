@@ -1,6 +1,7 @@
 #pragma once
 #include <iterator>
 #include <type_traits>
+#include <tuple>
 
 template<typename T>
 class CMyArray;
@@ -11,7 +12,7 @@ class CMyIterator  : public std::iterator<std::random_access_iterator_tag, T>
 {
 	friend class CMyArray<typename std::remove_const<T>::type>;
 private:
-	CMyIterator(T* p);
+	CMyIterator(std::tuple<T*, T**, T**> pointers);
 public:
 	CMyIterator(const CMyIterator &it);
 
@@ -31,17 +32,20 @@ public:
 	CMyIterator operator+(const CMyIterator<const T> & second) const;
 	CMyIterator operator-(const CMyIterator<const T> & second) const;
 
-	// TODO: add operator+ (think twice about offset signness and type size)
-	// TODO: add operator- (think twice about offset signness and type size)
-	
 	T* p;
+	T** m_begin;
+	T** m_end;
 };
 
 template<typename T>
 CMyIterator<T> operator+(const CMyIterator<T> & first, const CMyIterator<T> & second)
 {
 	CMyIterator<T> result(first);
-	result.p = first.p + second.p * sizeof(T);
+	result.p = *first.m_begin + (*first.m_end - first.p) + (*second.m_end - second.p);
+	if (result.p > (*first.m_end - 1) && *first.m_end != nullptr)
+	{
+		throw std::logic_error("");
+	}
 	return result;
 }
 
@@ -49,13 +53,21 @@ template<typename T>
 CMyIterator<T> operator-(const CMyIterator<T> & first, const CMyIterator<T> & second)
 {
 	CMyIterator<T> result(first);
-	result.p = first.p - second.p * sizeof(T);
+	result.p = *first.m_begin - (*first.m_end - first.p) - (*second.m_end - second.p);
+	if (result.p > *first.m_begin && *first.m_begin != nullptr)
+	{
+		throw std::logic_error("");
+	}
 	return result;
 }
 
 template<typename T>
 CMyIterator<T> CMyIterator<T>::operator-=(const CMyIterator<const T> & second)
 {
+	if (p - (typename std::remove_const<T>::type)second.p < *m_begin)
+	{
+		throw std::logic_error("");
+	}
 	p -= (typename std::remove_const<T>::type)second.p;
 	return (*this);
 }
@@ -63,6 +75,10 @@ CMyIterator<T> CMyIterator<T>::operator-=(const CMyIterator<const T> & second)
 template<typename T>
 CMyIterator<T> CMyIterator<T>::operator+=(const CMyIterator<const T> & second)
 {
+	if (p + (typename std::remove_const<T>::type)second.p >= *m_end)
+	{
+		throw std::logic_error("");
+	}
 	p += (typename std::remove_const<T>::type)second.p;
 	return (*this);
 }
@@ -78,6 +94,10 @@ CMyIterator<T> CMyIterator<T>::operator+(const CMyIterator<const T> & second) co
 {
 	CMyIterator result(p);
 	result += second;
+	if (result >= *m_end || result < *m_begin)
+	{
+		throw std::logic_error("");
+	}
 	return result;
 }
 
@@ -86,6 +106,10 @@ CMyIterator<T> CMyIterator<T>::operator-(const CMyIterator<const T> & second) co
 {
 	CMyIterator result(p);
 	result -= second;
+	if (result >= *m_end || result < *m_begin)
+	{
+		throw std::logic_error("");
+	}
 	return result;
 }
 
@@ -93,6 +117,10 @@ CMyIterator<T> CMyIterator<T>::operator-(const CMyIterator<const T> & second) co
 template<typename T>
 CMyIterator<T> &CMyIterator<T>::operator++()
 {
+	if (p == (*m_end - 1) && *m_end != nullptr)
+	{
+		throw std::logic_error("");
+	}
 	++p;
 	return *this;
 }
@@ -101,6 +129,10 @@ CMyIterator<T> &CMyIterator<T>::operator++()
 template<typename T>
 CMyIterator<T>& CMyIterator<T>::operator--()
 {
+	if (p == *m_begin)
+	{
+		throw std::logic_error("");
+	}
 	--p;
 	return *this;
 }
@@ -109,6 +141,10 @@ CMyIterator<T>& CMyIterator<T>::operator--()
 template<typename T>
 CMyIterator<T> CMyIterator<T>::operator--(int)
 {
+	if (p == *m_begin)
+	{
+		throw std::logic_error("");
+	}
 	CMyIterator t(*this);
 	--(*this);
 	return t;
@@ -117,16 +153,25 @@ CMyIterator<T> CMyIterator<T>::operator--(int)
 template<typename T>
 CMyIterator<T> CMyIterator<T>::operator++(int)
 {
+	if (p == (*m_end - 1) && *m_end != nullptr)
+	{
+		throw std::logic_error("");
+	}
 	CMyIterator t(*this);
 	++(*this);
 	return t;
 }
 
 template<typename T>
-CMyIterator<T>::CMyIterator(T *p) :
-	p(p)
+CMyIterator<T>::CMyIterator(std::tuple<T*,T**,T**> pointers) :
+	p(std::get<0>(pointers)),
+	m_begin(std::get<1>(pointers)),
+	m_end(std::get<2>(pointers))
 {
-
+	if (p == *m_end && p != nullptr)
+	{
+		--p;
+	}
 }
 
 template<typename T>

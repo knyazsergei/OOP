@@ -28,16 +28,19 @@ public:
 			catch (...)
 			{
 				DestroyItems(m_begin, m_end);
-				throw std::bad_alloc();
+				throw;
 			}
 		}
 	}
 
-	CMyArray(const CMyArray&& arr) :
+	CMyArray(CMyArray&& arr) :
 		m_begin(arr.m_begin),
 		m_end(arr.m_end),
 		m_endOfCapacity(arr.m_endOfCapacity)
 	{
+		arr.m_begin = nullptr;
+		arr.m_end = nullptr;
+		arr.m_endOfCapacity = nullptr;
 	}
 
 	CMyArray(size_t size, T item)
@@ -55,7 +58,7 @@ public:
 		{
 			DestroyItems(m_begin, end);
 			m_end = m_begin;
-			throw std::bad_alloc();
+			throw;
 		}
 	}
 
@@ -79,7 +82,7 @@ public:
 			catch (...)
 			{
 				DestroyItems(m_begin, m_end);
-				throw std::bad_alloc();
+				throw;
 			}
 		}
 	}
@@ -161,20 +164,20 @@ public:
 
 	CMyIterator<T> begin()
 	{
-		return m_begin;
+		return std::tuple<T*, T**, T**>(m_begin, &m_begin, &m_end);
 	}
 	CMyIterator<T> end()
 	{
-		return m_end;
+		return std::tuple<T*, T**, T**>(m_end, &m_begin, &m_end);
 	}
-
+	
 	CMyIterator<const T> begin() const
 	{
-		return m_begin;
+		return std::tuple<T*, T**, T**>(m_begin, m_begin, m_end);
 	}
 	CMyIterator<const T> end() const
 	{
-		return m_end;
+		return std::tuple<T*, T**, T**>(m_end, m_begin, m_end);
 	}
 
 	CMyArray<T> & operator=(const CMyArray<T> & arr)
@@ -193,7 +196,7 @@ public:
 			catch (...)
 			{
 				DestroyItems(m_begin, m_end);
-				throw std::bad_alloc();
+				throw;
 			}
 		}
 		return (*this);
@@ -220,12 +223,12 @@ public:
 			catch (...)
 			{
 				DestroyItems(m_begin, m_end);
-				throw std::bad_alloc();
+				throw;
 			}
 		}
 	}
 
-	CMyArray<T> & operator=(const CMyArray<T> && arr)
+	CMyArray<T> & operator=(CMyArray<T> && arr)
 	{
 		Clear();
 		m_begin = arr.m_begin;
@@ -324,13 +327,18 @@ public:
 
 	size_t GetSize()const
 	{
-		return m_end - m_begin;
+		return size_t(m_end - m_begin);
 	}
 
 	~CMyArray()
 	{
 		DestroyItems(m_begin, m_end);
 		RawDealloc();
+	}
+
+	void ShrinkToFit()
+	{
+		ResizeCapcity(GetSize());
 	}
 private:
 	void ResizeCapcity(size_t size = MINIMUM_CAPACITY)
@@ -352,7 +360,7 @@ private:
 				catch (...)
 				{
 					DestroyItems(begin, current);
-					throw std::bad_alloc();
+					throw;
 				}
 			}
 			//Присваиваем новые значения

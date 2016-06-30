@@ -25,7 +25,7 @@ struct EmptyStringArray
 };
 
 template <typename T>
-auto CheckCorrectArr(CMyArray<T> & arr1)
+bool CheckCorrectArr(CMyArray<T> & arr1)
 {
 	for (size_t i = 0; i < arr1.GetSize(); ++i)
 	{
@@ -38,7 +38,7 @@ auto CheckCorrectArr(CMyArray<T> & arr1)
 }
 
 template <typename T>
-auto CheckEqualArr(const CMyArray<T> & arr1, const CMyArray<T> & arr2)
+bool CheckEqualArr(const CMyArray<T> & arr1, const CMyArray<T> & arr2)
 {
 	if (arr1.GetSize() != arr2.GetSize())
 	{
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE(clear_array)
 	arr1.Resize(10);
 	arr1.Clear();
 	BOOST_CHECK_EQUAL(arr1.GetSize(), 0);
-	BOOST_CHECK(CheckEqualArr(arr1, {}));
+	BOOST_CHECK(CheckEqualArr(arr1, CMyArray<ArrayItem>({})));
 }
 
 BOOST_AUTO_TEST_CASE(resize_array)
@@ -213,11 +213,10 @@ BOOST_AUTO_TEST_CASE(Iterator_range_based_for)
 	bool result = true;
 	for (auto it : arr1)
 	{
-		if (it != i)
+		if (it != i++)
 		{
 			result = false;
 		}
-		++i;
 	}
 	BOOST_CHECK(result);
 }
@@ -231,6 +230,30 @@ BOOST_AUTO_TEST_CASE(iterator_copy)
 	//std::copy(arr1.begin(), arr1.end(), arr2.begin());
 }
 
+BOOST_AUTO_TEST_CASE(iterator)
+{
+	CMyArray<int> arr1({ 0, 1, 2, 3 });
+	auto it = arr1.end();
+	BOOST_CHECK_EQUAL(*(it), 3);
+	BOOST_CHECK_THROW(++it, std::logic_error);
+	BOOST_CHECK_EQUAL(*(--it), 2);
+	it = arr1.begin();
+	BOOST_CHECK_THROW(--it, std::logic_error);
+	BOOST_CHECK_EQUAL(*(++it), 1);
+
+	it = arr1.end();
+	BOOST_CHECK_THROW(it++, std::logic_error);
+	BOOST_CHECK_EQUAL(*(it--), 3);
+	it = arr1.begin();
+	BOOST_CHECK_THROW(it--, std::logic_error);
+	BOOST_CHECK_EQUAL(*(it++), 0);
+
+	auto it1 = arr1.begin();
+	auto it2 = ++arr1.begin();
+//	it = it1 + it2;
+
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(type_casting)
@@ -242,7 +265,9 @@ BOOST_AUTO_TEST_CASE(constructor_casting)
 	bool result = true;
 	for (size_t i = 0; i < arr1.GetSize(); ++i)
 	{
-		if (arr1[i] != arr2[i])
+		auto first = arr1[i];
+		auto second = arr2[i];
+		if (first != second)
 		{
 			result = false;
 		}
@@ -257,7 +282,7 @@ BOOST_AUTO_TEST_CASE(static_casting)
 	bool result = true;
 	for (size_t i = 0; i < arr1.GetSize(); ++i)
 	{
-		if (arr1[i] != arr2[i])
+		if (static_cast<float>(arr1[i]) != arr2[i])
 		{
 			result = false;
 		}
@@ -272,7 +297,7 @@ BOOST_AUTO_TEST_CASE(equating_casing)
 	bool result = true;
 	for (size_t i = 0; i < arr1.GetSize(); ++i)
 	{
-		if (arr1[i] != arr2[i])
+		if (static_cast<float>(arr1[i]) != arr2[i])
 		{
 			result = false;
 		}
