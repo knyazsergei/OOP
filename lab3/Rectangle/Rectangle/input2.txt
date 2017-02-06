@@ -1,1 +1,0 @@
-Rectangle 11 5 14 4
