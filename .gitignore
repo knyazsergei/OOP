@@ -20,10 +20,6 @@ x86/
 bld/
 [Bb]in/
 [Oo]bj/
-<<<<<<< HEAD
-[Ll]og/
-=======
->>>>>>> 226d01b1e8fafe2375e89bda2031f7cba5e48ea1
 
 # Visual Studio 2015 cache/options directory
 .vs/
@@ -57,6 +53,7 @@ artifacts/
 *.pdb
 *.pgc
 *.pgd
+*.sdf
 *.rsp
 *.sbr
 *.tlb
@@ -183,6 +180,7 @@ BundleArtifacts/
 ClientBin/
 ~$*
 *~
+*.db
 *.dbmdl
 *.dbproj.schemaview
 *.pfx
@@ -237,8 +235,5 @@ _Pvt_Extensions
 .paket/paket.exe
 
 # FAKE - F# Make
-<<<<<<< HEAD
 .fake/
-=======
-.fake/
->>>>>>> 226d01b1e8fafe2375e89bda2031f7cba5e48ea1
+samples/01-basics/string-joiner/out.txt
